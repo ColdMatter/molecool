@@ -1,15 +1,19 @@
 #define BOOST_TEST_MODULE mytests
 #include <boost/test/included/unit_test.hpp>
 #include <mkl.h>
+#include <omp.h>
 #include <array>
 #include "test.h"
 
 
 BOOST_AUTO_TEST_CASE(myTestCase)
 {
-
+  ///////////////////////////////////////////////
+  // test connection to 'molecool' library
   molecool::Print();
 
+  ///////////////////////////////////////////////
+  // boost library test
   BOOST_TEST(1 == 1);
   BOOST_TEST(true);
 
@@ -38,5 +42,23 @@ BOOST_AUTO_TEST_CASE(myTestCase)
 
   ///////////////////////////////////////////////
   // quick test of Boost random number generation
+
+
+  ///////////////////////////////////////////////
+  // quick test of openmp
+
+  printf("Starting openmp test!\n");
+  omp_set_dynamic(0);     // Explicitly disable dynamic teams
+  omp_set_num_threads(4); // Use 4 threads for all consecutive parallel regions
+  #pragma omp parallel
+  {
+	  // This statement will run on each thread.
+	  // If there are 4 threads, this will execute 4 times in total
+	  printf("Running on thread %d\n", omp_get_thread_num());
+  }
+
+  // We're out of the parallelized secion.
+  // Therefor, this should execute only once
+  printf("Finished!\n");
 
 }
