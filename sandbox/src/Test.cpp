@@ -1,11 +1,24 @@
-#define BOOST_TEST_MODULE mytests
-#include <boost/test/included/unit_test.hpp>
+//#define BOOST_TEST_MODULE mytests
+//#include <boost/test/included/unit_test.hpp>
 #include <mkl.h>
 #include <omp.h>
 #include <array>
 #include "test.h"
 
+#include "molecool.h"
 
+class Sandbox : public molecool::Application {
+	
+public:
+	Sandbox() {};
+	~Sandbox() {};
+};
+
+molecool::Application* molecool::createApplication() {
+	return new Sandbox();
+}
+
+/*
 BOOST_AUTO_TEST_CASE(myTestCase)
 {
   ///////////////////////////////////////////////
@@ -21,14 +34,14 @@ BOOST_AUTO_TEST_CASE(myTestCase)
   // quick test of MKL random number generation
   int seedy = (int)time(0);							// current time in seconds as a seed
   VSLStreamStatePtr stream;							// stream for random number generation
-  vslNewStream(&stream, VSL_BRNG_MCG31, seedy); 	// stream, generator type, seed 
+  vslNewStream(&stream, VSL_BRNG_MCG31, seedy); 	// stream, generator type, seed
   const int METHOD = 0;
   const int nValues = 10;
   std::array<double, nValues> randomArrayTarget;
   double mean = 0;
   double width = 1;
   double d = vdRngGaussian(METHOD, stream, nValues, randomArrayTarget.data(), mean, width);
-  
+
   // print the array the old-fashioned way
   for (int i = 0; i < nValues; ++i) {
 	  printf("value %d = %f\n", i, randomArrayTarget.at(i));
@@ -40,9 +53,6 @@ BOOST_AUTO_TEST_CASE(myTestCase)
 	  printf("value %I64u = %f\n", &rand - &(randomArrayTarget[0]), rand);
   }
 
-  ///////////////////////////////////////////////
-  // quick test of Boost random number generation
-
 
   ///////////////////////////////////////////////
   // quick test of openmp
@@ -52,7 +62,7 @@ BOOST_AUTO_TEST_CASE(myTestCase)
   omp_set_num_threads(8);	// Use N threads for all consecutive parallel regions
   #pragma omp parallel
   {
-	  // This code will run on each thread (with num/id = 0..N-1
+	  // This code will run on each thread (with num/id = 0..N-1)
 	  printf("Running on thread %d\n", omp_get_thread_num());
   }
 
@@ -61,3 +71,4 @@ BOOST_AUTO_TEST_CASE(myTestCase)
   printf("Finished!\n");
 
 }
+*/
