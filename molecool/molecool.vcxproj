@@ -106,9 +106,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\core\Simulation.cpp" />
     <ClCompile Include="src\test.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core.h" />
+    <ClInclude Include="src\core\Simulation.h" />
+    <ClInclude Include="src\core\Core.h" />
+    <ClInclude Include="src\core\EntryPoint.h" />
     <ClInclude Include="src\test.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

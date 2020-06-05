@@ -1,3 +1,7 @@
+/*
+This is a prototype simulation that uses the 'molecool' simulation engine.
+*/
+
 //#define BOOST_TEST_MODULE mytests
 //#include <boost/test/included/unit_test.hpp>
 #include <mkl.h>
@@ -7,14 +11,19 @@
 
 #include "molecool.h"
 
-class Sandbox : public molecool::Application {
+class Sandbox : public molecool::Simulation {
 	
 public:
 	Sandbox() {};
 	~Sandbox() {};
 };
 
-molecool::Application* molecool::createApplication() {
+// function called by the engine
+molecool::Simulation* molecool::createSimulation() {
+	//---------------------------------------------------------------------
+	// user/client simulation code run before simulation proceeds goes here
+
+	//---------------------------------------------------------------------
 	return new Sandbox();
 }
 
