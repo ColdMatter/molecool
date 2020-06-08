@@ -1,0 +1,3 @@
+[submodule "molecool/vendor/spdlog"]
+	path = molecool/vendor/spdlog
+	url = https://github.com/gabime/spdlog.git

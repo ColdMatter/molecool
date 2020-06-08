@@ -1,12 +1,20 @@
 #pragma once
 
-#include <stdio.h>
-
+// TO BE DEFINED BY CLIENT SIMULATION
 extern molecool::Simulation* molecool::createSimulation();
 
 int main(int argc, char** argv) {
-	printf("Welcome to the MOLECOOL simulation engine!");
-	auto app = molecool::createSimulation();
-	app->run();
-	delete app;
+
+	// engine initialization code goes here
+	molecool::Log::init();
+	molecool::Log::getCoreLogger()->info("Logger started");
+	molecool::Log::getClientLogger()->warn("Logger started");
+	//-------------------------------------
+
+	// run the user simulation
+	auto sim = molecool::createSimulation();
+	sim->run();
+	delete sim;
+	//-------------------------------------
+	return 0;
 }

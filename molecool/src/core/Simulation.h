@@ -9,7 +9,7 @@ namespace molecool {
         void run();
     };
 
-    // TO BE DEFINED IN CLIENT APPLICATION
+    // METHOS TO BE DEFINED IN CLIENT APPLICATION
     Simulation* createSimulation();
 
 }

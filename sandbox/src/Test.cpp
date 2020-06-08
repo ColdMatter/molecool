@@ -8,7 +8,6 @@ This is a prototype simulation that uses the 'molecool' simulation engine.
 #include <omp.h>
 #include <array>
 #include "test.h"
-
 #include "molecool.h"
 
 class Sandbox : public molecool::Simulation {
