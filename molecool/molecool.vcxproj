@@ -67,11 +67,13 @@
       <AdditionalIncludeDirectories>$(SolutionDir)molecool\vendor\spdlog\include;C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\mkl\include;C:\Boost\boost_1_73_0</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <OpenMPSupport>true</OpenMPSupport>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Boost\boost_1_73_0\stage\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Boost\boost_1_73_0\stage\lib;C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2020.1.216\windows\compiler\lib\intel64_win</AdditionalLibraryDirectories>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -83,7 +85,7 @@
       <PreprocessorDefinitions>MC_BUILD_DLL;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)molecool\vendor\spdlog\include;C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\mkl\include;C:\Boost\boost_1_73_0</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)molecool\vendor\spdlog\include;C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2020.1.216\windows\mkl\include;C:\Boost\boost_1_73_0</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
@@ -92,7 +94,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Boost\boost_1_73_0\stage\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Boost\boost_1_73_0\stage\lib;C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2020.1.216\windows\compiler\lib\intel64_win</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

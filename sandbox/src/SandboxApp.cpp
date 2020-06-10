@@ -21,6 +21,7 @@ public:
 molecool::Simulation* molecool::createSimulation() {
 	//---------------------------------------------------------------------
 	// user/client simulation code run before simulation proceeds goes here
+	MC_INFO("Creating client simulation...");
 
 	//---------------------------------------------------------------------
 	return new Sandbox();

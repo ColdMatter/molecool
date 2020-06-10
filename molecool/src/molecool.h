@@ -4,12 +4,14 @@
 
 #include "core/Core.h"
 
-//---------- Base class for user applications ----------
+//---------- Base class for client simulations -------------
 #include "core/Simulation.h"
-//------------------------------------------------------
+//----------------------------------------------------------
 
+//--- Engine (core) and client simulation logging ----------
 #include "core/Log.h"
 
-//---------- Entry point for user simulation ---------
+//--- Entry point [main()[ for client simulation -----------
+// main() is defined here
 #include "core/EntryPoint.h"
-//------------------------------------------------------
+//----------------------------------------------------------

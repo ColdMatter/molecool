@@ -92,7 +92,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)molecool\vendor\spdlog\include;C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\mkl\include;C:\Boost\boost_1_73_0;$(SolutionDir)molecool\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)molecool\vendor\spdlog\include;C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2020.1.216\windows\mkl\include;C:\Boost\boost_1_73_0;$(SolutionDir)molecool\src</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>

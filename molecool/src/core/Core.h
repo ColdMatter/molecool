@@ -1,6 +1,6 @@
 #pragma once
 
-// macros for determining operating system and library linking
+// macros for dynamic library imports/exports (required on Windows)
 // see https://sourceforge.net/p/predef/wiki/OperatingSystems/ for standard macros
 #ifdef _WIN32
     //  Windows (both 32 and 64 bit)
