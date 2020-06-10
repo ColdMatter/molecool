@@ -1,3 +1,6 @@
 [submodule "molecool/vendor/spdlog"]
 	path = molecool/vendor/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "molecool/vendor/nlohmann_json"]
+	path = molecool/vendor/nlohmann_json
+	url = https://github.com/nlohmann/json.git
