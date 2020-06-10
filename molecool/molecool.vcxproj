@@ -120,7 +120,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="src\core\EntryPoint.h" />
-    <ClInclude Include="src\core\Timer.h" />
+    <ClInclude Include="src\core\ScopedTimer.h" />
     <ClInclude Include="src\molecool.h" />
     <ClInclude Include="src\test.h" />
   </ItemGroup>

@@ -44,7 +44,7 @@
     <ClInclude Include="src\molecool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\Timer.h">
+    <ClInclude Include="src\core\ScopedTimer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

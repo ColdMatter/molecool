@@ -5,6 +5,9 @@ bin/*
 .vs/*
 .vscode/*
 
+# ignore some strange visual studio directory
+enc_temp_folder/
+
 # Ignore any executables
 *.exe
 *.out

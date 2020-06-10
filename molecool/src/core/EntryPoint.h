@@ -31,8 +31,8 @@ int main(int argc, char** argv) {
 	//-------------------------------------
 	// quick test of MKL random number generation
 	MC_CORE_INFO("Begin test of MKL random number generation");
-	int seedy = (int)time(0);							// current time in seconds as a seed
-	VSLStreamStatePtr stream;							// stream for random number generation
+	int seedy = (int)time(0);						// current time in seconds as a seed
+	VSLStreamStatePtr stream;						// stream for random number generation
 	vslNewStream(&stream, VSL_BRNG_MCG31, seedy); 	// stream, generator type, seed
 	const int METHOD = 0;
 	const int nValues = 1e5;
@@ -40,7 +40,7 @@ int main(int argc, char** argv) {
 	double mean = 0;
 	double width = 1;
 	{
-		Timer timer;
+		ScopedTimer timer("MKL RNG test");
 		int status = vdRngGaussian(METHOD, stream, nValues, randomArrayTarget.data(), mean, width);
 	}
 	
@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
 	MC_CORE_INFO("Starting openmp test!");
 	//omp_set_dynamic(0);		// Explicitly disable dynamic teams
 	omp_set_num_threads(8);		// Use N threads for all consecutive parallel regions
-#pragma omp parallel
+	#pragma omp parallel
 	{
 		// This code will run on each thread (with num/id = 0..N-1)
 		MC_CORE_TRACE("Running on thread {0}", omp_get_thread_num());
