@@ -2,6 +2,8 @@
 
 // THIS HEADER IS INTENDED FOR INCLUSION BY CLIENTS/APPLICATIONS ONLY
 
+#include "core/Core.h"
+
 //---------- Base class for user applications ----------
 #include "core/Simulation.h"
 //------------------------------------------------------

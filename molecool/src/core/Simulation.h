@@ -1,15 +1,17 @@
 #pragma once
 
+#include "Core.h"
+
 namespace molecool {
 
-    class Simulation {
+    class MOLECOOL_API Simulation {
     public:
         Simulation();
         virtual ~Simulation();
         void run();
     };
 
-    // METHOS TO BE DEFINED IN CLIENT APPLICATION
+    // METHOD TO BE DEFINED IN CLIENT APPLICATION
     Simulation* createSimulation();
 
 }

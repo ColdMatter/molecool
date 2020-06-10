@@ -20,7 +20,7 @@
 
 namespace molecool {
 
-    class Log {
+    class MOLECOOL_API Log {
     public:
         static void init();
         inline static std::shared_ptr<spdlog::logger>& getCoreLogger() { return s_coreLogger; }

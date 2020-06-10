@@ -2,6 +2,6 @@
 
 namespace molecool {
 
-	void Print();
+	__declspec(dllexport) void Print();
 
 }
