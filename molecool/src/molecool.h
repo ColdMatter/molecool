@@ -10,6 +10,11 @@
 
 //--- Engine (core) and client simulation logging ----------
 #include "core/Log.h"
+//----------------------------------------------------------
+
+//--- Timing -----------------------------------------------
+#include "core/Timer.h"
+//----------------------------------------------------------
 
 //--- Entry point [main()[ for client simulation -----------
 // main() is defined here

@@ -35,15 +35,14 @@ int main(int argc, char** argv) {
 	VSLStreamStatePtr stream;							// stream for random number generation
 	vslNewStream(&stream, VSL_BRNG_MCG31, seedy); 	// stream, generator type, seed
 	const int METHOD = 0;
-	const int nValues = 1e5;
+	const int nValues = 1e6;
 	std::array<double, nValues> randomArrayTarget;
 	double mean = 0;
 	double width = 1;
 	{
 		Timer timer;
-		int status = vdRngGaussian(METHOD, stream, nValues, randomArrayTarget.data(), mean, width);
+		double d = vdRngGaussian(METHOD, stream, nValues, randomArrayTarget.data(), mean, width);
 	}
-	
 	/*
 	// printing the C++11 way using a range-based for loop
 	// actually awkward to extract the current index in this case
