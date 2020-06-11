@@ -16,7 +16,8 @@ int main(int argc, char** argv) {
 	// logging initialiation and tests
 	// TODO: move to initialization method
 	molecool::Log::init();
-	MC_CORE_INFO("Engine initialization started\n");
+	MC_CORE_INFO("WELCOME TO MOLECOOL ENGINE v{0}\n", molecool::getEngineVersion());
+	MC_CORE_INFO("Engine initialization started");
 	MC_CORE_INFO("Start logging test");
 	int a = 10, b = 5;
 	MC_CORE_TRACE("info message, a={0}, b={1}", a, b);
@@ -35,7 +36,7 @@ int main(int argc, char** argv) {
 	VSLStreamStatePtr stream;						// stream for random number generation
 	vslNewStream(&stream, VSL_BRNG_MCG31, seedy); 	// stream, generator type, seed
 	const int METHOD = 0;
-	const int nValues = 1e5;
+	const int nValues = 100'000;
 	std::array<double, nValues> randomArrayTarget;
 	double mean = 0;
 	double width = 1;
