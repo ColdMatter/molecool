@@ -43,7 +43,6 @@ int main(int argc, char** argv) {
 		ScopedTimer timer("MKL RNG test");
 		int status = vdRngGaussian(METHOD, stream, nValues, randomArrayTarget.data(), mean, width);
 	}
-	
 	/*
 	// printing the C++11 way using a range-based for loop
 	// actually awkward to extract the current index in this case
@@ -51,23 +50,25 @@ int main(int argc, char** argv) {
 		MC_CORE_INFO("value {0} = {1}", &rand - &(randomArrayTarget[0]), rand);
 		//printf("value %I64u = %f\n", &rand - &(randomArrayTarget[0]), rand);
 	}
+	*/
 	MC_CORE_INFO("End test of MKL random number generation\n");
 	//-------------------------------------
-	*/
+	
 	
 	//-------------------------------------
-	MC_CORE_INFO("Starting openmp test!");
+	MC_CORE_INFO("openmp test started");
+	int maxThreads = omp_get_max_threads();
+	MC_CORE_INFO("{0} (or less) threads are available", maxThreads);
+	MC_CORE_INFO("{0} threads are configured for dynamic adjustment", omp_get_dynamic());
 	//omp_set_dynamic(0);		// Explicitly disable dynamic teams
-	omp_set_num_threads(8);		// Use N threads for all consecutive parallel regions
+	omp_set_num_threads(maxThreads);		
 	#pragma omp parallel
 	{
 		// This code will run on each thread (with num/id = 0..N-1)
 		MC_CORE_TRACE("Running on thread {0}", omp_get_thread_num());
 	}
-
-	// We're out of the parallelized section.
-	// Therefore, this should execute only once
-	MC_CORE_INFO("End openmp test\n");
+	// We're out of the parallelized scope, now single processor
+	MC_CORE_INFO("openmp test ended /n");
 	//-------------------------------------
 	
 

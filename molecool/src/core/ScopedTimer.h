@@ -3,7 +3,21 @@
 /*
 This is a scoped timer that measures the time between instantiation 
 and when the timer object goes out of scope.  The constructor takes 
-and optional std::string name parameter for clarity 
+and optional std::string name parameter for clarity of use.
+
+Usage is generally as follows.  One option is to instantiate the 
+timer in a function that is to be timed:
+void someFunction() 
+{                           // begin function scope
+    ScopedTimer timer();    // instantiate timer, timing starts
+    ***CODE TO TIME***      // function actions to be timed
+}                           // timer destroyed when leaving function scope, timing stops
+
+Alternatively, you can always create a local scope with {}:
+{                           // start local scope
+    ScopedTimer timer();    // instantiate timer, timing starts 
+    ***CODE TO TIME***      // scoped actions to be timed
+}                           // timer destroyed when leaving local scope, timing stops
 */
 
 #include <chrono>
