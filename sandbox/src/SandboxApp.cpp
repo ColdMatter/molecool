@@ -9,21 +9,26 @@ This is a prototype simulation that uses the 'molecool' simulation engine.
 */
 #include "molecool.h"
 
+namespace molecool {
 
-class Sandbox : public molecool::Simulation {
-	
-public:
-	Sandbox() {};
-	~Sandbox() {};
-};
+	class Sandbox : public Simulation {
 
-// function called by the engine in the entry point
-molecool::Simulation* molecool::createSimulation() {
-	//---------------------------------------------------------------------
-	// user/client simulation code run before simulation proceeds goes here
-	MC_INFO("Creating client simulation...");
+	public:
+		Sandbox() {};
+		~Sandbox() {};
+	};
 
-	//---------------------------------------------------------------------
-	return new Sandbox();
+	// function called by the engine in the entry point
+	Simulation* createSimulation() {
+		//---------------------------------------------------------------------
+		// user/client simulation code run before simulation proceeds goes here
+		MC_INFO("Creating client simulation...");
+
+		//---------------------------------------------------------------------
+		return new Sandbox();
+	}
+
 }
+
+
 
