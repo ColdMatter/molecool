@@ -45,24 +45,11 @@ int main(int argc, char** argv) {
 	//-------------------------------------
 
 	//-------------------------------------
-	// quick test of MKL random number generation
-	MC_CORE_INFO("Begin test of MKL random number generation");
+	// quick test of ensemble creation and initialization
 	int seed = (int)time(0);						// current time in seconds as a seed
 	VSLStreamStatePtr stream;						// stream state descriptor
 	vslNewStream(&stream, VSL_BRNG_MT2203, seed); 	// stream, generator type, seed
-	const unsigned nValues = 5;
-	int status;
-	molecool::Distribution dist = molecool::Distribution(molecool::DistributionType::gaussian, 0, 1);
-	const int rows = 5, cols = 5;
-	double array2D[rows][cols] = {0}; // test 2D target array, zero initialized
-	{
-		ScopedTimer timer("MKL RNG Distribution test");
-		status = dist.sample(stream, nValues, array2D[0]);	// stream in some random numbers from the distribution
-	}
-	print2dArray(array2D);
-
 	
-	// create and initialize an ensemble
 	// construct desired molecule distributions for {x, y, z, vx, vy, vz}
 	std::array<molecool::Distribution,6> distributions = {
 		molecool::Distribution(molecool::DistributionType::gaussian, 0, 1),
@@ -74,7 +61,7 @@ int main(int argc, char** argv) {
 	};
 
 	// generate the ensemble of particles and initialize them using the given distributions
-	int nParticles = 1'000;	// 1e7 particles occupy about 1 GB of heap memory
+	int nParticles = 1'000'000;	// 1e7 particles occupy about 1 GB of heap memory
 	molecool::Ensemble ensemble(nParticles, distributions);
 	
 	vslDeleteStream(&stream);
