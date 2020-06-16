@@ -1,7 +1,5 @@
 #pragma once
 
-#include <iostream>
-#include <sstream>
 #include <string>
 
 // macros for dynamic library imports/exports (required on Windows)

@@ -64,7 +64,7 @@
       <PreprocessorDefinitions>MC_BUILD_DLL;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)molecool\vendor\spdlog\include;C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\mkl\include;C:\Boost\boost_1_73_0</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)molecool\vendor\spdlog\include;C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2020.1.216\windows\mkl\include;C:\Boost\boost_1_73_0</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <OpenMPSupport>true</OpenMPSupport>
       <SuppressStartupBanner>false</SuppressStartupBanner>
@@ -108,11 +108,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\core\Distribution.cpp" />
+    <ClCompile Include="src\core\Ensemble.cpp" />
     <ClCompile Include="src\core\Log.cpp" />
     <ClCompile Include="src\core\Simulation.cpp" />
     <ClCompile Include="src\test.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\core\Distribution.h" />
+    <ClInclude Include="src\core\Ensemble.h" />
     <ClInclude Include="src\core\Log.h" />
     <ClInclude Include="src\core\Simulation.h" />
     <ClInclude Include="src\core\Core.h">

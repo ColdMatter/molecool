@@ -24,7 +24,7 @@ namespace molecool {
     public:
         static void init();
 
-        // get logger methods, return shared_ptr by reference to avoid unnecessary reference counting
+        // get logger methods, return shared_ptr by reference to avoid unnecessary reference counting on copy
         inline static std::shared_ptr<spdlog::logger>& getCoreLogger() { return s_coreLogger; }
         inline static std::shared_ptr<spdlog::logger>& getClientLogger() { return s_clientLogger; }
 

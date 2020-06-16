@@ -3,9 +3,24 @@
 #include <mkl.h>
 #include <omp.h>
 #include <array>
+#include <valarray>
+
+#include "Ensemble.h"
+#include "Distribution.h"
 
 // TO BE DEFINED BY CLIENT SIMULATION
 extern molecool::Simulation* molecool::createSimulation();
+
+template <typename T, size_t rows, size_t cols>
+void print2dArray(T(&array)[rows][cols])
+{
+	for (std::size_t i = 0; i < rows; ++i) {
+		for (std::size_t j = 0; j < cols; ++j) {
+			printf("%f ", array[i][j]);
+		}
+		printf("\n");
+	}
+}
 
 
 // PROGRAM EXECUTION STARTS HERE
@@ -17,7 +32,7 @@ int main(int argc, char** argv) {
 	// TODO: move to initialization method
 	molecool::Log::init();
 	MC_CORE_INFO("WELCOME TO MOLECOOL ENGINE v{0}\n", molecool::getEngineVersion());
-	MC_CORE_INFO("Engine initialization started");
+	
 	MC_CORE_INFO("Start logging test");
 	int a = 10, b = 5;
 	MC_CORE_TRACE("info message, a={0}, b={1}", a, b);
@@ -32,27 +47,37 @@ int main(int argc, char** argv) {
 	//-------------------------------------
 	// quick test of MKL random number generation
 	MC_CORE_INFO("Begin test of MKL random number generation");
-	int seedy = (int)time(0);						// current time in seconds as a seed
-	VSLStreamStatePtr stream;						// stream for random number generation
-	vslNewStream(&stream, VSL_BRNG_MCG31, seedy); 	// stream, generator type, seed
-	const int METHOD = 0;
-	const int nValues = 100'000;
-	std::array<double, nValues> randomArrayTarget;
-	double mean = 0;
-	double width = 1;
+	int seed = (int)time(0);						// current time in seconds as a seed
+	VSLStreamStatePtr stream;						// stream state descriptor
+	vslNewStream(&stream, VSL_BRNG_MT2203, seed); 	// stream, generator type, seed
+	const unsigned nValues = 5;
+	int status;
+	molecool::Distribution dist = molecool::Distribution(molecool::DistributionType::gaussian, 0, 1);
+	const int rows = 5, cols = 5;
+	double array2D[rows][cols] = {0}; // test 2D target array, zero initialized
 	{
-		ScopedTimer timer("MKL RNG test");
-		int status = vdRngGaussian(METHOD, stream, nValues, randomArrayTarget.data(), mean, width);
+		ScopedTimer timer("MKL RNG Distribution test");
+		status = dist.sample(stream, nValues, array2D[0]);	// stream in some random numbers from the distribution
 	}
-	/*
-	// printing the C++11 way using a range-based for loop
-	// actually awkward to extract the current index in this case
-	for (const auto& rand : randomArrayTarget) {
-		MC_CORE_INFO("value {0} = {1}", &rand - &(randomArrayTarget[0]), rand);
-		//printf("value %I64u = %f\n", &rand - &(randomArrayTarget[0]), rand);
-	}
-	*/
-	MC_CORE_INFO("End test of MKL random number generation\n");
+	print2dArray(array2D);
+
+	
+	// create and initialize an ensemble
+	// construct desired molecule distributions for {x, y, z, vx, vy, vz}
+	std::array<molecool::Distribution,6> distributions = {
+		molecool::Distribution(molecool::DistributionType::gaussian, 0, 1),
+		molecool::Distribution(molecool::DistributionType::flat, 0, 1),
+		molecool::Distribution(molecool::DistributionType::exponential, 0, 1),
+		molecool::Distribution(molecool::DistributionType::gaussian, 0, 1),
+		molecool::Distribution(molecool::DistributionType::gaussian, 0, 1),
+		molecool::Distribution(molecool::DistributionType::gaussian, 0, 1)
+	};
+
+	// generate the ensemble of particles and initialize them using the given distributions
+	int nParticles = 1'000;	// 1e7 particles occupy about 1 GB of heap memory
+	molecool::Ensemble ensemble(nParticles, distributions);
+	
+	vslDeleteStream(&stream);
 	//-------------------------------------
 	
 	
