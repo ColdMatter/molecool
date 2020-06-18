@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <valarray>
-#include "core.h"
+#include "Core.h"
 #include "Distribution.h"
 
 namespace molecool {
@@ -39,7 +39,7 @@ namespace molecool {
 	class MOLECOOL_API Ensemble {
 	
 	public:
-		Ensemble(int nParticles, std::array<molecool::Distribution, 6>& dists);
+		Ensemble(long nParticles, std::array<molecool::Distribution, 6>& dists);
 		~Ensemble();
 		size_t getNumberOfParticles() { return particles.size(); }
 	

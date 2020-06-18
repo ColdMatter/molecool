@@ -6,7 +6,7 @@
 #include <valarray>
 
 #include "Ensemble.h"
-#include "Distribution.h"
+#include "Random.h"
 
 // TO BE DEFINED BY CLIENT SIMULATION
 extern molecool::Simulation* molecool::createSimulation();
@@ -20,6 +20,13 @@ void print2dArray(T(&array)[rows][cols])
 		}
 		printf("\n");
 	}
+}
+
+// a function reports the current reference count for a shared_ptr
+// note: the count includes the one given to the function if pointer passed by value!
+void fun(std::shared_ptr<molecool::MklRandomStream> sp)
+{
+	MC_CORE_TRACE("shared pointer reference count is {0}",sp.use_count());
 }
 
 
@@ -44,6 +51,19 @@ int main(int argc, char** argv) {
 	MC_CORE_INFO("End logging test\n");
 	//-------------------------------------
 
+	// test of using shared_ptr for MklRandomStream
+	// probably want to share ownership of stream with distributions that will use it
+	// by passing the (shared) stream to their constructor (as value, to increment the reference count)
+	// so that they share ownership of that stream
+	{
+		double testArray[10];
+		auto streamPtr = std::make_shared<molecool::MklRandomStream>();
+		auto dist = molecool::Distribution(molecool::DistributionType::gaussian, 0, 1);
+		fun(streamPtr);
+		dist.sample(streamPtr->getStream(), 10, testArray);
+	}	// streamPtr and MklRandomStream object should be automatically deleted as it goes out of scope
+	
+
 	//-------------------------------------
 	// quick test of ensemble creation and initialization
 	int seed = (int)time(0);						// current time in seconds as a seed
@@ -61,7 +81,7 @@ int main(int argc, char** argv) {
 	};
 
 	// generate the ensemble of particles and initialize them using the given distributions
-	int nParticles = 1'000'000;	// 1e7 particles occupy about 1 GB of heap memory
+	long nParticles = 1'000'000;	// 1e7 particles occupy about 500MB of heap memory
 	molecool::Ensemble ensemble(nParticles, distributions);
 	
 	vslDeleteStream(&stream);

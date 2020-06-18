@@ -13,10 +13,10 @@ namespace molecool {
         //spdlog::set_pattern("%^[%T] %n: %v%$");
         spdlog::set_pattern("%^[%Y-%m-%d %T.%e] [%n] [%l] %v%$");
         
-        s_coreLogger = spdlog::stdout_color_mt("MOLECOOL");    // engine logger
+        s_coreLogger = spdlog::stdout_color_mt("MOLECOOL");    // core/engine logger
         s_coreLogger->set_level(spdlog::level::trace);
         
-        s_clientLogger = spdlog::stdout_color_mt("SIM");       // simulation logger
+        s_clientLogger = spdlog::stdout_color_mt("SIM");       // client simulation logger
         s_clientLogger->set_level(spdlog::level::trace);
     }
 
