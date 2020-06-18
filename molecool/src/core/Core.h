@@ -2,7 +2,7 @@
 
 #include <string>
 
-// macros for dynamic library imports/exports (required on Windows)
+// macros for dynamic library imports/exports (required on Windows only)
 // see https://sourceforge.net/p/predef/wiki/OperatingSystems/ for standard macros
 #ifdef _WIN32
     //  Windows (both 32 and 64 bit)

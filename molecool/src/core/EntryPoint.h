@@ -22,6 +22,15 @@ void print2dArray(T(&array)[rows][cols])
 	}
 }
 
+template <typename T, size_t rows>
+void print1dArray(T(&array)[rows])
+{
+	for (std::size_t i = 0; i < rows; ++i) {
+		printf("%f ", array[i]);
+	}
+	printf("\n");
+}
+
 // a function reports the current reference count for a shared_ptr
 // note: the count includes the one given to the function if pointer passed by value!
 void fun(std::shared_ptr<molecool::MklRandomStream> sp)
@@ -32,12 +41,15 @@ void fun(std::shared_ptr<molecool::MklRandomStream> sp)
 
 // PROGRAM EXECUTION STARTS HERE
 int main(int argc, char** argv) {
+
+	using namespace molecool;
+
 	// engine initialization code goes here
 
 	//-------------------------------------
 	// logging initialiation and tests
 	// TODO: move to initialization method
-	molecool::Log::init();
+	Log::init();
 	MC_CORE_INFO("WELCOME TO MOLECOOL ENGINE v{0}\n", molecool::getEngineVersion());
 	
 	MC_CORE_INFO("Start logging test");
@@ -57,11 +69,31 @@ int main(int argc, char** argv) {
 	// so that they share ownership of that stream
 	{
 		double testArray[10];
-		auto streamPtr = std::make_shared<molecool::MklRandomStream>();
-		auto dist = molecool::Distribution(molecool::DistributionType::gaussian, 0, 1);
+		auto streamPtr = std::make_shared<RandomStream>();
+		auto dist = Distribution(Shape::gaussian, 0, 1);
 		fun(streamPtr);
 		dist.sample(streamPtr->getStream(), 10, testArray);
-	}	// streamPtr and MklRandomStream object should be automatically deleted as it goes out of scope
+		print1dArray(testArray);
+	}	// streamPtr and RandomStream object should be automatically deleted as it goes out of scope
+	
+	{	// try doing the above but in parallel, requires composing a shared_ptr to an array of streams...
+		const int nThreads = 2;
+		// create smart pointer to array of object, must provide custom deleter section
+		// all streams use the same seed
+		std::shared_ptr<RandomStream[nThreads]> 
+			sp(new RandomStream[nThreads]{ RandomStream(time(0)) }, [](RandomStream* p) { delete[] p; });
+		omp_set_num_threads(nThreads);
+		#pragma omp parallel
+		{
+			int threadId = omp_get_thread_num();
+			double tArray[10];
+			auto dist = Distribution(Shape::gaussian, 0, 1);
+			dist.sample(sp.get()[threadId].getStream(), 10, tArray);
+			MC_CORE_TRACE("message from thread {0}, first random number is {1}", threadId, tArray[0]);
+			print1dArray(tArray);
+		}
+
+	}
 	
 
 	//-------------------------------------
@@ -71,18 +103,18 @@ int main(int argc, char** argv) {
 	vslNewStream(&stream, VSL_BRNG_MT2203, seed); 	// stream, generator type, seed
 	
 	// construct desired molecule distributions for {x, y, z, vx, vy, vz}
-	std::array<molecool::Distribution,6> distributions = {
-		molecool::Distribution(molecool::DistributionType::gaussian, 0, 1),
-		molecool::Distribution(molecool::DistributionType::flat, 0, 1),
-		molecool::Distribution(molecool::DistributionType::exponential, 0, 1),
-		molecool::Distribution(molecool::DistributionType::gaussian, 0, 1),
-		molecool::Distribution(molecool::DistributionType::gaussian, 0, 1),
-		molecool::Distribution(molecool::DistributionType::gaussian, 0, 1)
+	std::array<Distribution,6> distributions = {
+		Distribution(Shape::gaussian, 0, 1),
+		Distribution(Shape::flat, 0, 1),
+		Distribution(Shape::exponential, 0, 1),
+		Distribution(Shape::gaussian, 0, 1),
+		Distribution(Shape::gaussian, 0, 1),
+		Distribution(Shape::gaussian, 0, 1)
 	};
 
 	// generate the ensemble of particles and initialize them using the given distributions
 	long nParticles = 1'000'000;	// 1e7 particles occupy about 500MB of heap memory
-	molecool::Ensemble ensemble(nParticles, distributions);
+	Ensemble ensemble(nParticles, distributions);
 	
 	vslDeleteStream(&stream);
 	//-------------------------------------
@@ -108,7 +140,7 @@ int main(int argc, char** argv) {
 	MC_CORE_INFO("Engine initialization complete.");
 
 	// run the user simulation
-	auto sim = molecool::createSimulation();
+	auto sim = createSimulation();
 	sim->run();
 	delete sim;
 	//-------------------------------------

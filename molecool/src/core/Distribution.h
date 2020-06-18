@@ -25,9 +25,9 @@ namespace molecool {
     // Random number generator types
     enum class RngType {MCG31, R250, MRG32K3A, MCG59, MT19937, MT2203, SFMT19937, SOBOL, NIEDERR};
 
-    // supported distribution types
+    // supported distribution types (shapes)
     // currently only support MKL distributions that take two parameters
-    enum class DistributionType {
+    enum class Shape {
         flat,           // parameters are min, max [p1,p2)
         gaussian,       // parameters are mean, sigma (Gaussian width)
         exponential,    // parameters are displacement, scale factor
@@ -41,7 +41,7 @@ namespace molecool {
 
     public:
         // constructor, takes distribution type (shape) and 2 shape parameters
-        Distribution(DistributionType distType, double p1 = 0, double p2 = 0);
+        Distribution(Shape distType, double p1 = 0, double p2 = 0);
 
         // sample the distribution
         int sample(VSLStreamStatePtr rngStream, int nValues, double* target);
@@ -50,7 +50,7 @@ namespace molecool {
 
     private:
 
-        DistributionType m_distType = DistributionType::flat;  
+        Shape m_shape = Shape::flat;  
 
         // shape parameters
         double m_p1 = 0;
