@@ -85,14 +85,8 @@ int main(int argc, char** argv) {
 		}
 	}
 	
-
 	//-------------------------------------
-	// quick test of ensemble creation and initialization
-	int seed = (int)time(0);						// current time in seconds as a seed
-	VSLStreamStatePtr stream;						// stream state descriptor
-	vslNewStream(&stream, VSL_BRNG_MT2203, seed); 	// stream, generator type, seed
-	
-	
+	// A quick test of ensemble creation and initialization
 	// construct desired molecule distributions for {x, y, z, vx, vy, vz}
 	std::array<Distribution,6> distributions = {
 		Distribution(Shape::gaussian, 0, 1),
@@ -102,31 +96,12 @@ int main(int argc, char** argv) {
 		Distribution(Shape::gaussian, 0, 1),
 		Distribution(Shape::gaussian, 0, 1)
 	};
-
 	// generate the ensemble of particles and initialize them using the given distributions
 	long nParticles = 1'000'000;	// 1e7 particles occupy about 500MB of heap memory
 	Ensemble ensemble(nParticles, distributions);
-	
-	vslDeleteStream(&stream);
-	
 	//-------------------------------------
 	
 	
-	//-------------------------------------
-
-	omp_set_num_threads(maxThreads);		
-	#pragma omp parallel
-	{
-		// This code will run on each thread (with num/id = 0..N-1)
-		MC_CORE_TRACE("Running on thread {0}", omp_get_thread_num());
-	}
-	// We're out of the parallelized scope, now single processor
-	MC_CORE_INFO("openmp test ended /n");
-	//-------------------------------------
-	
-
-	MC_CORE_INFO("Engine initialization complete.");
-
 	// run the user simulation
 	auto sim = createSimulation();
 	sim->run();
