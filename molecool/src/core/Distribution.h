@@ -40,8 +40,8 @@ namespace molecool {
     class MOLECOOL_API Distribution {
 
     public:
-        // constructor, takes distribution type (shape) and 2 shape parameters
-        Distribution(Shape distType, double p1 = 0, double p2 = 0);
+        // constructor, takes distribution shape and 2 parameters (e.g. center and width)
+        Distribution(Shape shape, double p1 = 0, double p2 = 0);
 
         // sample the distribution
         int sample(VSLStreamStatePtr rngStream, int nValues, double* target);

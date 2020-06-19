@@ -10,7 +10,7 @@
 
 namespace molecool {
 
-	Ensemble::Ensemble(long nParticles, std::array<molecool::Distribution, 6>& dists)
+	Ensemble::Ensemble(long nParticles, std::array<Distribution, 6>& dists)
 	{
 		MC_CORE_INFO("Initializing an ensemble of {0} particles", nParticles);
 		//particles.reserve((size_t)nParticles);	// sets capacity without initializing elements
@@ -40,7 +40,7 @@ namespace molecool {
 			for (long j = 0; j < nParticles; ++j) {
 				double* dataPtr = (double*) ((i < nDims/2) ? (&particles[j].position.x) : (&particles[j].velocity.x));
 				//*(dataPtr + (j * sizeof(Particle) / sizeof(double) + i)) = target[i * nParticles + j];					// populate ensemble particle coordinate
-				*(dataPtr + i) = target[(long)i * nParticles + j];
+				*(dataPtr + i) = target[(long)i * nParticles + (long)j];
 			}
 		}
 		MC_CORE_TRACE("Ensemble initialization complete");
@@ -51,7 +51,7 @@ namespace molecool {
 		// but is ~4x slower because the valarray slicing operation is a cache miss on every read
 		std::valarray<double> vTarget(nRandoms);
 		for (size_t i = 0; i < nDims; ++i) {
-			dists[i].sample(stream, nParticles, &vTarget[i * nParticles]);
+			dists[i].sample(nParticles, &vTarget[i * nParticles]);
 		}
 		// in memory, target valarray now looks like [ ... xs ...  ys ... zs ... vxs ... vys ... vzs ... ]
 		// can slice through it and construct particles to populate the vector container

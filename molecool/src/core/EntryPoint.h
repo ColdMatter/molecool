@@ -33,7 +33,7 @@ void print1dArray(T(&array)[rows])
 
 // a function reports the current reference count for a shared_ptr
 // note: the count includes the one given to the function if pointer passed by value!
-void fun(std::shared_ptr<molecool::MklRandomStream> sp)
+void fun(std::shared_ptr<molecool::RandomStream> sp)
 {
 	MC_CORE_TRACE("shared pointer reference count is {0}",sp.use_count());
 }
@@ -75,24 +75,34 @@ int main(int argc, char** argv) {
 		dist.sample(streamPtr->getStream(), 10, testArray);
 		print1dArray(testArray);
 	}	// streamPtr and RandomStream object should be automatically deleted as it goes out of scope
+
+	{
+		double a[10];
+		auto sp = std::make_shared<RandomStream>();
+		auto dist = ContinuousDistribution(sp, Shape::gaussian, 0, 1);
+		fun(sp);
+		dist.sample(10, a);
+		print1dArray(a);
+	}	// sp and RandomStream object are automatically deleted as last owner goes out of scope
 	
-	{	// try doing the above but in parallel, requires composing a shared_ptr to an array of streams...
-		const int nThreads = 2;
-		// create smart pointer to array of object, must provide custom deleter section
-		// all streams use the same seed
-		std::shared_ptr<RandomStream[nThreads]> 
-			sp(new RandomStream[nThreads]{ RandomStream(time(0)) }, [](RandomStream* p) { delete[] p; });
+	{	
+		// test of parallelizing the generation of random numbers, each thread gets
+		// each thread gets an independent stream but the same seed
+		const int nThreads = 4;
+		int seed = (int)time(0);
+		std::vector<std::shared_ptr<RandomStream>> sps;
+		for (int i = 0; i < nThreads; ++i) {
+			sps.push_back(std::make_shared<RandomStream>(seed));
+		}
 		omp_set_num_threads(nThreads);
 		#pragma omp parallel
 		{
 			int threadId = omp_get_thread_num();
 			double tArray[10];
-			auto dist = Distribution(Shape::gaussian, 0, 1);
-			dist.sample(sp.get()[threadId].getStream(), 10, tArray);
+			auto dist = ContinuousDistribution(sps[threadId], Shape::gaussian, 0, 1);
+			dist.sample(10, tArray);
 			MC_CORE_TRACE("message from thread {0}, first random number is {1}", threadId, tArray[0]);
-			print1dArray(tArray);
 		}
-
 	}
 	
 
