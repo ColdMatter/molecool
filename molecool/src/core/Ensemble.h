@@ -1,8 +1,9 @@
 #pragma once
+
 #include <vector>
-#include <valarray>
+//#include <valarray>
 #include "Core.h"
-#include "Distribution.h"
+#include "Random.h"
 
 namespace molecool {
 
@@ -25,27 +26,29 @@ namespace molecool {
 			: position(x, y, z), velocity(vx, vy, vz)
 		{}
 
+		/*
 		// compose from a valarray object of length 6
 		Particle(const std::valarray<double>& vArray)
 			: position(vArray[0], vArray[1], vArray[2]), velocity(vArray[3], vArray[4], vArray[5])
 		{}
+		*/
 
 		Vector position;
 		Vector velocity;
 		// probably needs to have a reference to a particle manager or at least a (static) species id
+		// though maybe that should be the job of the Ensemble class
 		// position in the vector container gives a unique particle number
 	};
 
 	class MOLECOOL_API Ensemble {
 	
 	public:
-		Ensemble(long nParticles, std::array<molecool::Distribution, 6>& dists);
-		~Ensemble();
+		Ensemble(long nParticles, std::array<Distribution, 6>& dists);
 		size_t getNumberOfParticles() { return particles.size(); }
 	
 	private:
 		std::vector<Particle> particles;
-		VSLStreamStatePtr stream;
+
 	};
 
 }

@@ -48,46 +48,26 @@ int main(int argc, char** argv) {
 
 	//-------------------------------------
 	// logging initialiation and tests
-	// TODO: move to initialization method
+	// TODO: move to engine initialization method
 	Log::init();
-	MC_CORE_INFO("WELCOME TO MOLECOOL ENGINE v{0}\n", molecool::getEngineVersion());
-	
-	MC_CORE_INFO("Start logging test");
-	int a = 10, b = 5;
-	MC_CORE_TRACE("info message, a={0}, b={1}", a, b);
-	MC_CORE_WARN("warn message");
-	MC_CORE_ERROR("error message");
-	MC_CORE_FATAL("critical message");
-	// client logging example
-	MC_INFO("a client logger info message");
-	MC_CORE_INFO("End logging test\n");
-	//-------------------------------------
+	MC_CORE_INFO("Welcome to the MOLECOOL engine v{0}", molecool::getEngineVersion());
 
-	// test of using shared_ptr for MklRandomStream
-	// probably want to share ownership of stream with distributions that will use it
-	// by passing the (shared) stream to their constructor (as value, to increment the reference count)
-	// so that they share ownership of that stream
-	{
-		double testArray[10];
-		auto streamPtr = std::make_shared<RandomStream>();
-		auto dist = Distribution(Shape::gaussian, 0, 1);
-		fun(streamPtr);
-		dist.sample(streamPtr->getStream(), 10, testArray);
-		print1dArray(testArray);
-	}	// streamPtr and RandomStream object should be automatically deleted as it goes out of scope
+	int maxThreads = omp_get_max_threads();
+	omp_set_dynamic(0);
+	MC_CORE_INFO("Hardware check: {0} cores/threads available", maxThreads, omp_get_dynamic());
 
+	// test of using shared_ptr for RandomStream object lifetime management
 	{
 		double a[10];
+		auto dist = Distribution(Shape::gaussian, 0, 1);
 		auto sp = std::make_shared<RandomStream>();
-		auto dist = ContinuousDistribution(sp, Shape::gaussian, 0, 1);
-		fun(sp);
-		dist.sample(10, a);
+		dist.sample(sp, 10, a);
 		print1dArray(a);
-	}	// sp and RandomStream object are automatically deleted as last owner goes out of scope
+	}	// sp and RandomStream objects are automatically deleted as last owner goes out of scope
 	
+	// test of parallelizing the generation of random numbers
+	// each thread gets an independent stream but the same seed
 	{	
-		// test of parallelizing the generation of random numbers, each thread gets
-		// each thread gets an independent stream but the same seed
 		const int nThreads = 4;
 		int seed = (int)time(0);
 		std::vector<std::shared_ptr<RandomStream>> sps;
@@ -99,8 +79,8 @@ int main(int argc, char** argv) {
 		{
 			int threadId = omp_get_thread_num();
 			double tArray[10];
-			auto dist = ContinuousDistribution(sps[threadId], Shape::gaussian, 0, 1);
-			dist.sample(10, tArray);
+			auto dist = Distribution(Shape::gaussian, 0, 1);
+			dist.sample(sps[threadId], 10, tArray);
 			MC_CORE_TRACE("message from thread {0}, first random number is {1}", threadId, tArray[0]);
 		}
 	}
@@ -111,6 +91,7 @@ int main(int argc, char** argv) {
 	int seed = (int)time(0);						// current time in seconds as a seed
 	VSLStreamStatePtr stream;						// stream state descriptor
 	vslNewStream(&stream, VSL_BRNG_MT2203, seed); 	// stream, generator type, seed
+	
 	
 	// construct desired molecule distributions for {x, y, z, vx, vy, vz}
 	std::array<Distribution,6> distributions = {
@@ -127,15 +108,12 @@ int main(int argc, char** argv) {
 	Ensemble ensemble(nParticles, distributions);
 	
 	vslDeleteStream(&stream);
+	
 	//-------------------------------------
 	
 	
 	//-------------------------------------
-	MC_CORE_INFO("openmp test started");
-	int maxThreads = omp_get_max_threads();
-	MC_CORE_INFO("{0} (or less) threads are available", maxThreads);
-	MC_CORE_INFO("{0} threads are configured for dynamic adjustment", omp_get_dynamic());
-	//omp_set_dynamic(0);		// Explicitly disable dynamic teams
+
 	omp_set_num_threads(maxThreads);		
 	#pragma omp parallel
 	{

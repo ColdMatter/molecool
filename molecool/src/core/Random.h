@@ -14,7 +14,7 @@ Usage examples of ContinuousDistribution class:
 
 1) single-threaded version:
     double a[10];                                                // target array for random values
-    auto dist = ContinuousDistribution(Shape::gaussian, 0, 1);   // create distribution
+    auto dist = Distribution(Shape::gaussian, 0, 1);             // create distribution
     auto sp = std::make_shared<RandomStream>(int seed);          // acquire stream, optional seed
     dist.sample(sp, 10, a);                                      // sample the distribution, filling array
     double singleSample = dist.sample(sp);                       // just grab a single sample (slower)
@@ -31,7 +31,7 @@ Usage examples of ContinuousDistribution class:
     {
         int threadId = omp_get_thread_num();
         double b[10];
-        auto dist = ContinuousDistribution(Shape::gaussian, 0, 1);
+        auto dist = Distribution(Shape::gaussian, 0, 1);
         dist.sample(sps[threadId], 10, b);
     }
 
@@ -40,12 +40,12 @@ Usage examples of ContinuousDistribution class:
 #include <mkl.h>
 #include <time.h>
 #include "Core.h"
-#include "Distribution.h"
 
 namespace molecool {
 
 // a wrapper class for MKL random number streams 
 // The BRNG choice is restricted to be MT2203
+// each class instance gets an independent stream
 // this class of BRNG can provide up to 6024 independent streams
     class MOLECOOL_API RandomStream {
 
@@ -62,13 +62,13 @@ namespace molecool {
         int m_id;
         void checkStatus(int status);
     };
-/*
+
     // Random number generator types
     enum class RngTypey { MCG31, R250, MRG32K3A, MCG59, MT19937, MT2203, SFMT19937, SOBOL, NIEDERR };
 
     // supported distribution types (shapes)
     // currently only support MKL distributions that take two parameters
-    enum class Shape {
+    enum class MOLECOOL_API Shape {
         flat,           // parameters are min, max [p1,p2)
         gaussian,       // parameters are mean, sigma (Gaussian width)
         exponential,    // parameters are displacement, scale factor
@@ -77,32 +77,35 @@ namespace molecool {
         rayleigh,       // parameters are displacement, scale fator
         gumbel          // parameters are displacement, scale factor
     };
-*/
-    class MOLECOOL_API ContinuousDistribution {
+
+
+    /*
+    The Distribution class represents a (continuous) distribution of random numbers, 
+    from which the caller can sample values by providing a RandomStream. 
+
+    One thing to try and improve is the unnecessary shared_ptr reference counting when passing the 
+    pointer between in-class methods.  I'm not sure how to get around this.  If you pass by reference 
+    then the same method won't work as intended when used externally (because we want external calls 
+    to add to the reference count).  It's probably OK for now.  
+    */
+    class MOLECOOL_API Distribution {
 
     public:
         // constructor, takes shared_ptr to random stream, distribution shape and 2 parameters (e.g. center and width)
         // shared_ptr is passed by value to increment the reference count to make this object a shared owner
-        ContinuousDistribution(std::shared_ptr<RandomStream> sp, Shape shape, double p1 = 0, double p2 = 0);
+        Distribution(Shape shape, double p1 = 0, double p2 = 0);
 
         // sample the distribution, vectorized
-        int sample(int nValues, double* target);
-        int sample(int nValues, double* target, double p1, double p2);
-
-        // sample the distribution, single values (uses class buffer)
-        double sample();                        // uses shape parameters passed at construction
+        int sample(std::shared_ptr<RandomStream> sp, int nValues, double* target);
+        int sample(std::shared_ptr<RandomStream> sp, int nValues, double* target, double p1, double p2);
+        double sample(std::shared_ptr<RandomStream> sp);    // will be slow!
 
     private:
-
-        std::shared_ptr<RandomStream> m_streamSp = nullptr;
 
         // shape parameters
         Shape m_shape = Shape::flat;
         double m_p1 = 0;
         double m_p2 = 0;
-
-        std::array<double, 1024> m_buffer;
-        double* m_bufferPtr = m_buffer.data();
 
     };
 

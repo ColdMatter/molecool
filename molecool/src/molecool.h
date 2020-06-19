@@ -16,7 +16,9 @@
 #include "core/ScopedTimer.h"
 //----------------------------------------------------------
 
-//--- Entry point [main()[ for client simulation -----------
+#include "core/Random.h"
+
+//--- Entry point [main()] for client simulation -----------
 // main() is defined here
 #include "core/EntryPoint.h"
 //----------------------------------------------------------

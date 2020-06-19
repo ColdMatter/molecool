@@ -108,7 +108,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\core\Distribution.cpp" />
     <ClCompile Include="src\core\Ensemble.cpp" />
     <ClCompile Include="src\core\Log.cpp" />
     <ClCompile Include="src\core\Random.cpp" />
@@ -116,7 +115,6 @@
     <ClCompile Include="src\test.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\core\Distribution.h" />
     <ClInclude Include="src\core\Ensemble.h" />
     <ClInclude Include="src\core\Log.h" />
     <ClInclude Include="src\core\Random.h" />

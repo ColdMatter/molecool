@@ -29,16 +29,16 @@ namespace molecool {
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-    ContinuousDistribution::ContinuousDistribution(std::shared_ptr<RandomStream> sp, Shape shape, double p1, double p2)
-        : m_streamSp(sp), m_shape(shape), m_p1(p1), m_p2(p2)
+    Distribution::Distribution(Shape shape, double p1, double p2)
+        : m_shape(shape), m_p1(p1), m_p2(p2)
     {}
 
-    int ContinuousDistribution::sample(int nValues, double* target) {
-        return sample(nValues, target, m_p1, m_p2);
+    int Distribution::sample(std::shared_ptr<RandomStream> sp, int nValues, double* target) {
+        return sample(sp, nValues, target, m_p1, m_p2);
     }
 
-    int ContinuousDistribution::sample(int nValues, double* target, double p1, double p2) {
-        VSLStreamStatePtr rngStream = m_streamSp->getStream();
+    int Distribution::sample(std::shared_ptr<RandomStream> sp, int nValues, double* target, double p1, double p2) {
+        VSLStreamStatePtr rngStream = sp->getStream();
         switch (m_shape) {
         case Shape::flat:
             return vdRngUniform(VSL_RNG_METHOD_UNIFORM_STD, rngStream, nValues, target, p1, p2);
@@ -57,16 +57,13 @@ namespace molecool {
         }
     }
 
-    // single-sample getter, uses class-level buffer to interface with vectorized MKL stream structure
-    double ContinuousDistribution::sample() {
-        if (m_bufferPtr == m_buffer.data()) {
-            // buffer is empty, fill it
-            int nValues = (int)m_buffer.size();
-            sample(nValues, m_buffer.data());
-            m_bufferPtr += nValues;
-        }
-        m_bufferPtr--;                      
-        double result = *m_bufferPtr;
+    // single-sample getter
+    // this will be very slow in comparison to the array-fill standard method
+    // but is provided for convenience
+    double Distribution::sample(std::shared_ptr<RandomStream> sp) {
+        double result;
+        double* resPtr = &result;
+        sample(sp, 1, resPtr);
         return result;
     }
 
