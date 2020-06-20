@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-//#include <valarray>
+#include <valarray>
 #include "Core.h"
 #include "Random.h"
 
@@ -26,12 +26,12 @@ namespace molecool {
 			: position(x, y, z), velocity(vx, vy, vz)
 		{}
 
-		/*
+		
 		// compose from a valarray object of length 6
 		Particle(const std::valarray<double>& vArray)
 			: position(vArray[0], vArray[1], vArray[2]), velocity(vArray[3], vArray[4], vArray[5])
 		{}
-		*/
+		
 
 		Vector position;
 		Vector velocity;
@@ -43,7 +43,7 @@ namespace molecool {
 	class MOLECOOL_API Ensemble {
 	
 	public:
-		Ensemble(long nParticles, std::array<Distribution, 6>& dists);
+		Ensemble(int nParticles, std::array<Distribution, 6>& dists);
 		size_t getNumberOfParticles() { return particles.size(); }
 	
 	private:

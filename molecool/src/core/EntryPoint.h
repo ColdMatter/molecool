@@ -55,49 +55,21 @@ int main(int argc, char** argv) {
 	int maxThreads = omp_get_max_threads();
 	omp_set_dynamic(0);
 	MC_CORE_INFO("Hardware check: {0} cores/threads available", maxThreads, omp_get_dynamic());
-
-	// test of using shared_ptr for RandomStream object lifetime management
-	{
-		double a[10];
-		auto dist = Distribution(Shape::gaussian, 0, 1);
-		auto sp = std::make_shared<RandomStream>();
-		dist.sample(sp, 10, a);
-		print1dArray(a);
-	}	// sp and RandomStream objects are automatically deleted as last owner goes out of scope
 	
-	// test of parallelizing the generation of random numbers
-	// each thread gets an independent stream but the same seed
-	{	
-		const int nThreads = 4;
-		int seed = (int)time(0);
-		std::vector<std::shared_ptr<RandomStream>> sps;
-		for (int i = 0; i < nThreads; ++i) {
-			sps.push_back(std::make_shared<RandomStream>(seed));
-		}
-		omp_set_num_threads(nThreads);
-		#pragma omp parallel
-		{
-			int threadId = omp_get_thread_num();
-			double tArray[10];
-			auto dist = Distribution(Shape::gaussian, 0, 1);
-			dist.sample(sps[threadId], 10, tArray);
-			MC_CORE_TRACE("message from thread {0}, first random number is {1}", threadId, tArray[0]);
-		}
-	}
 	
 	//-------------------------------------
 	// A quick test of ensemble creation and initialization
 	// construct desired molecule distributions for {x, y, z, vx, vy, vz}
 	std::array<Distribution,6> distributions = {
-		Distribution(Shape::gaussian, 0, 1),
-		Distribution(Shape::flat, 0, 1),
-		Distribution(Shape::exponential, 0, 1),
-		Distribution(Shape::gaussian, 0, 1),
-		Distribution(Shape::gaussian, 0, 1),
-		Distribution(Shape::gaussian, 0, 1)
+		Distribution(Shape::gaussian, 0, 0.1),
+		Distribution(Shape::gaussian, 1, 0.1),
+		Distribution(Shape::gaussian, 2, 0.1),
+		Distribution(Shape::gaussian, 3, 0.1),
+		Distribution(Shape::gaussian, 4, 0.1),
+		Distribution(Shape::gaussian, 5, 0.1)
 	};
 	// generate the ensemble of particles and initialize them using the given distributions
-	long nParticles = 100'000'000;	// 1e7 particles occupy about 500MB of heap memory
+	long nParticles = 10'000'000;	// 1e7 particles occupy about 500MB of heap memory
 	Ensemble ensemble(nParticles, distributions);
 	//-------------------------------------
 	
