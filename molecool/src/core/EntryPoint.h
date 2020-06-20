@@ -97,7 +97,7 @@ int main(int argc, char** argv) {
 		Distribution(Shape::gaussian, 0, 1)
 	};
 	// generate the ensemble of particles and initialize them using the given distributions
-	long nParticles = 1'000'000;	// 1e7 particles occupy about 500MB of heap memory
+	long nParticles = 100'000'000;	// 1e7 particles occupy about 500MB of heap memory
 	Ensemble ensemble(nParticles, distributions);
 	//-------------------------------------
 	

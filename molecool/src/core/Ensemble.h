@@ -48,7 +48,7 @@ namespace molecool {
 	
 	private:
 		std::vector<Particle> particles;
-
+		std::array<Distribution, 6> distributions;	// copy of distributions used to create the ensemble
 	};
 
 }

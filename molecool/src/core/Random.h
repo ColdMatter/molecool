@@ -64,7 +64,7 @@ namespace molecool {
     };
 
     // Random number generator types
-    enum class RngTypey { MCG31, R250, MRG32K3A, MCG59, MT19937, MT2203, SFMT19937, SOBOL, NIEDERR };
+    enum class Rng_t { MCG31, R250, MRG32K3A, MCG59, MT19937, MT2203, SFMT19937, SOBOL, NIEDERR };
 
     // supported distribution types (shapes)
     // currently only support MKL distributions that take two parameters
