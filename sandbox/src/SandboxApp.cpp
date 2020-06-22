@@ -18,11 +18,30 @@ namespace molecool {
 		~Sandbox() {};
 	};
 
+
 	// function called by the engine in the entry point
+	// user/client simulation code executed before simulation runs goes here
+	// Basically, DEFINE YOUR SIMULATION HERE
 	Simulation* createSimulation() {
-		//---------------------------------------------------------------------
-		// user/client simulation code run before simulation proceeds goes here
-		MC_INFO("Creating client simulation...");
+
+
+		//-------------------------------------
+		// A quick test of ensemble creation and initialization
+		// construct desired molecule distributions for {x, y, z, vx, vy, vz}
+		std::array<Distribution, 6> distributions = {
+			Distribution(Shape::gaussian, 0, 0.1),
+			Distribution(Shape::gaussian, 1, 0.1),
+			Distribution(Shape::gaussian, 2, 0.1),
+			Distribution(Shape::gaussian, 3, 0.1),
+			Distribution(Shape::gaussian, 4, 0.1),
+			Distribution(Shape::gaussian, 5, 0.1)
+		};
+		// generate the ensemble of particles and initialize them using the given distributions
+		long nParticles = 10'000'000;	// 1e7 particles occupy about 500MB of heap memory
+		Ensemble ensemble(nParticles, distributions);
+		//-------------------------------------
+
+
 
 		//---------------------------------------------------------------------
 		return new Sandbox();

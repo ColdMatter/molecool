@@ -48,33 +48,14 @@ int main(int argc, char** argv) {
 
 	//-------------------------------------
 	// logging initialiation and tests
-	// TODO: move to engine initialization method
 	Log::init();
 	MC_CORE_INFO("Welcome to the MOLECOOL engine v{0}", molecool::getEngineVersion());
 
-	int maxThreads = omp_get_max_threads();
 	omp_set_dynamic(0);
-	MC_CORE_INFO("Hardware check: {0} cores/threads available", maxThreads, omp_get_dynamic());
+	MC_CORE_INFO("Hardware check: {0} cores/threads available", omp_get_max_threads(), omp_get_dynamic());
 	
-	
-	//-------------------------------------
-	// A quick test of ensemble creation and initialization
-	// construct desired molecule distributions for {x, y, z, vx, vy, vz}
-	std::array<Distribution,6> distributions = {
-		Distribution(Shape::gaussian, 0, 0.1),
-		Distribution(Shape::gaussian, 1, 0.1),
-		Distribution(Shape::gaussian, 2, 0.1),
-		Distribution(Shape::gaussian, 3, 0.1),
-		Distribution(Shape::gaussian, 4, 0.1),
-		Distribution(Shape::gaussian, 5, 0.1)
-	};
-	// generate the ensemble of particles and initialize them using the given distributions
-	long nParticles = 10'000'000;	// 1e7 particles occupy about 500MB of heap memory
-	Ensemble ensemble(nParticles, distributions);
-	//-------------------------------------
-	
-	
-	// run the user simulation
+	// create and run the user simulation
+	MC_INFO("Creating client simulation...");
 	auto sim = createSimulation();
 	sim->run();
 	delete sim;
