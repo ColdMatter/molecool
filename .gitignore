@@ -43,3 +43,6 @@ enc_temp_folder/
 *.la
 *.a
 *.lib
+
+# exceptions
+!premake5.exe

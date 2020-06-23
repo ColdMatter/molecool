@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "Core.h"
-#include "spdlog/spdlog.h" 
+#include "spdlog/spdlog.h"
 
 // core logging macros
 #define MC_CORE_FATAL(...) molecool::Log::getCoreLogger()->critical(__VA_ARGS__)

@@ -24,7 +24,7 @@ namespace molecool {
 			// generate the required number of random numbers
 			MC_CORE_TRACE("Generating random numbers for ensemble");
 			int seed = (int)time(0);						// current time in seconds as a seed
-			int nDims = dists.size();						// number of phase-space dimensions
+			int nDims = (int)dists.size();					// number of phase-space dimensions
 			int nRandoms = nParticles * nDims;
 			std::vector<double> target(nRandoms);			// target for random numbers
 			// For random number generation, make a thread for each phase-space coordinate for simplicity
