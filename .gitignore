@@ -1,17 +1,23 @@
 # Ignore certain directories
 build/*
-lib/*
 bin/*
+
+# visual studio (or code) specific contents
 .vs/*
 .vscode/*
+**.sln
+**.vcxproj
+**.vcxproj.filters
+**.vcxproj.user
 
 # ignore some strange visual studio directory
 enc_temp_folder/
 
-# Ignore any executables
+# Ignore any executables (except premake)
 *.exe
 *.out
 *.app
+!premake5.exe
 
 # Ignore Mac specific files
 .DS_Store
@@ -44,5 +50,4 @@ enc_temp_folder/
 *.a
 *.lib
 
-# exceptions
-!premake5.exe
+
