@@ -4,7 +4,7 @@
 
 namespace molecool {
 
-    class MOLECOOL_API Simulation {
+    class  Simulation {
     public:
         Simulation();
         virtual ~Simulation();

@@ -18,8 +18,11 @@ workspace "molecool" -- workspace/solution name
 
 project "molecool"
     location "molecool"
-    kind "SharedLib"
+    kind "StaticLib"
     language "C++"
+    cppdialect "C++17"
+    staticruntime "on"
+    systemversion "latest"
 
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
     objdir ("build/" .. outputdir .. "/%{prj.name}")
@@ -44,19 +47,17 @@ project "molecool"
 
     links 
     {
-        mklLibDir .. "mkl_intel_ilp64_dll.lib",                     -- interface
-        mklLibDir .. "mkl_intel_thread_dll.lib",                    -- threading
-        mklLibDir .. "mkl_core_dll.lib",                            -- core
+        mklLibDir .. "mkl_intel_ilp64.lib",     -- interface
+        mklLibDir .. "mkl_intel_thread.lib",    -- threading
+        mklLibDir .. "mkl_core.lib",            -- core
     }
 
     filter "system:windows"
-        cppdialect "C++17"
-        staticruntime "Off"
-        systemversion "latest"
+        
 
         defines 
         {
-            "MC_BUILD_DLL"
+            
         }
 
         buildoptions 
@@ -67,28 +68,25 @@ project "molecool"
 
         links 
         {
-            mklRootDir .. "compiler/lib/intel64_win/libiomp5md.dll"     -- openmp
+            mklRootDir .. "compiler/lib/intel64_win/libiomp5md.lib"     -- openmp
         }
 
     filter "configurations:Debug"
         defines "_DEBUG"
-        symbols "On"
+        symbols "on"
 
     filter "configurations:Release"
         defines "NDEBUG"
-        optimize "On"
-
-    filter {"system:windows", "configurations:Debug"}
-        buildoptions {"/MDd"}
-
-    filter {"system:windows", "configurations:Release"}
-        buildoptions {"/MD"}
+        optimize "on"
 
  
 project "sandbox"
     location "sandbox"
     kind "ConsoleApp"
     language "C++"
+    cppdialect "C++17"
+    staticruntime "on"
+    systemversion "latest"
 
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
     objdir ("build/" .. outputdir .. "/%{prj.name}")
@@ -115,15 +113,12 @@ project "sandbox"
     links 
     {
         "molecool",
-        mklLibDir .. "mkl_intel_ilp64_dll.lib",                     -- interface
-        mklLibDir .. "mkl_intel_thread_dll.lib",                    -- threading
-        mklLibDir .. "mkl_core_dll.lib",                            -- core
+        mklLibDir .. "mkl_intel_ilp64.lib",     -- interface
+        mklLibDir .. "mkl_intel_thread.lib",    -- threading
+        mklLibDir .. "mkl_core.lib",            -- core
     }
 
     filter "system:windows"
-        cppdialect "C++17"
-        staticruntime "Off"
-        systemversion "latest"
 
         defines 
         {
@@ -138,26 +133,14 @@ project "sandbox"
 
         links 
         {
-            mklRootDir .. "compiler/lib/intel64_win/libiomp5md.dll"     -- openmp
-        }
-
-        postbuildmessage "copying dll..."
-        postbuildcommands 
-        {
-            -- still in project directory so need to use ../ to backup one level and access bin/
-            ("{COPY} ../bin/" .. outputdir.. "/molecool/molecool.dll ../bin/" ..  outputdir .. "/%{prj.name}")
+            mklRootDir .. "compiler/lib/intel64_win/libiomp5md.lib"     -- openmp
         }
 
     filter "configurations:Debug"
         defines "_DEBUG"
-        symbols "On"
+        symbols "on"
 
     filter "configurations:Release"
         defines "NDEBUG"
-        optimize "On"
+        optimize "on"
 
-    filter {"system:windows", "configurations:Debug"}
-        buildoptions {"/MTd"}
-
-    filter {"system:windows", "configurations:Release"}
-        buildoptions {"/MT"}

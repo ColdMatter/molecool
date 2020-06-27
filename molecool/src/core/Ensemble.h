@@ -8,7 +8,7 @@
 namespace molecool {
 
 	// a 3-component cartesian vector
-	struct MOLECOOL_API Vector {
+	struct Vector {
 		Vector(double x = 0, double y = 0, double z = 0)
 			: x(x), y(y), z(z)
 		{}
@@ -18,7 +18,7 @@ namespace molecool {
 	// A particle is a very simple object, it just constains the position and velocity of "something"
 	// BEWARE - Don't add anything else unless you also rewrite the Ensemble class intitialization code
 	// The only way that is currently so fast is because of how simple the Particle class is
-	struct MOLECOOL_API Particle {
+	struct  Particle {
 
 		// construct from position and velocity vectors
 		Particle(const Vector& pos, const Vector& vel)
@@ -34,7 +34,7 @@ namespace molecool {
 		Vector velocity;
 	};
 
-	class MOLECOOL_API Ensemble {
+	class  Ensemble {
 	
 	public:
 		Ensemble(int nParticles, std::array<Distribution, 6>& dists);

@@ -47,7 +47,7 @@ namespace molecool {
 // The BRNG choice is restricted to be MT2203
 // each class instance gets an independent stream
 // this class of BRNG can provide up to 6024 independent streams
-    class MOLECOOL_API RandomStream {
+    class  RandomStream {
 
     public:
         RandomStream(int seed = (int)time(0));
@@ -68,7 +68,7 @@ namespace molecool {
 
     // supported distribution types (shapes)
     // currently only support MKL distributions that take two parameters
-    enum class MOLECOOL_API Shape {
+    enum class  Shape {
         flat,           // parameters are min, max [p1,p2)
         gaussian,       // parameters are mean, sigma (Gaussian width)
         exponential,    // parameters are displacement, scale factor
@@ -88,17 +88,21 @@ namespace molecool {
     then the same method won't work as intended when used externally (because we want external calls 
     to add to the reference count).  It's probably OK for now.  
     */
-    class MOLECOOL_API Distribution {
+    class  Distribution {
 
     public:
         // constructor, takes shared_ptr to random stream, distribution shape and 2 parameters (e.g. center and width)
         // shared_ptr is passed by value to increment the reference count to make this object a shared owner
         Distribution(Shape shape, double p1 = 0, double p2 = 0);
 
-        // sample the distribution, vectorized
+        // sample the distribution, using the constructor-specified parameters
         int sample(std::shared_ptr<RandomStream> sp, int nValues, double* target);
+
+        // sample the distribution, using call-time-specified parameters (allows time-dependent parameters)
         int sample(std::shared_ptr<RandomStream> sp, int nValues, double* target, double p1, double p2);
-        double sample(std::shared_ptr<RandomStream> sp);    // will be slow!
+
+        // sample a single value from the distribution, will be relatively slow
+        double sample(std::shared_ptr<RandomStream> sp);    
 
     private:
 
