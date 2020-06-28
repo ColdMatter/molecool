@@ -1,22 +1,21 @@
 #include "mcpch.h"
 #include "Ensemble.h"
 #include "Random.h"
-#include "ScopedTimer.h"
 
 namespace molecool {
 
 	Ensemble::Ensemble(int nParticles, std::array<Distribution, 6>& dists)
 		: distributions(dists)
 	{
-		MC_CORE_INFO("Creating an ensemble of {0} particles", nParticles);
+		MC_CORE_INFO("Creating an ensemble of {0} particle states", nParticles);
 		try {
-			MC_CORE_TRACE("Allocating particles vector");
+			MC_CORE_TRACE("Allocating states vector");
 			//particles.reserve((size_t)nParticles);	// sets capacity without initializing elements
-			particles.resize((size_t)nParticles);		// sets capacity and initializes members
-			MC_CORE_TRACE("Allocation of particles vector finished");
+			states.resize((size_t)nParticles);		// sets capacity and initializes members
+			MC_CORE_TRACE("Allocation of states vector finished");
 			
 			// generate the required number of random numbers
-			MC_CORE_TRACE("Generating random numbers for ensemble");
+			MC_CORE_TRACE("Generating random numbers for ensemble states");
 			int seed = (int)time(0);						// current time in seconds as a seed
 			int nDims = (int)dists.size();					// number of phase-space dimensions
 			int nRandoms = nParticles * nDims;
@@ -29,13 +28,13 @@ namespace molecool {
 			}
 			omp_set_num_threads(nDims);
 			#pragma omp parallel for
-				for (int i = 0; i < nDims; ++i) {
-					dists[i].sample(sps[i], nParticles, (double*)(&target.at(i * nParticles)));	// write to target array	
+				for (long i = 0; i < nDims; ++i) {
+					dists[i].sample(sps[i], nParticles, (double*)(&target.at(i * (long)nParticles)));	// write to target array	
 				}
 			MC_CORE_TRACE("Generation of random numbers finished");
 
-			MC_CORE_INFO("Initializing ensemble particles");
-			mkl_domatcopy('R', 'T', nDims, nParticles, 1, target.data(), nParticles, (double*)particles.data(), nDims);
+			MC_CORE_INFO("Initializing ensemble states");
+			mkl_domatcopy('R', 'T', nDims, nParticles, 1, target.data(), nParticles, (double*)states.data(), nDims);
 			MC_CORE_INFO("Initialization finished");
 		}
 		catch (...) {

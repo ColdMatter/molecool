@@ -11,6 +11,7 @@
 #include <iostream>
 #include <stdlib.h>     // size_t, EXIT_SUCCESS, etc.
 #include <time.h>
+#include <chrono>
 
 // high-performance library headers
 #include <omp.h>

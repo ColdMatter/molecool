@@ -1,3 +1,5 @@
+-- include paths and linking depend on the environment variables MKLROOT and BOOSTROOT
+
 workspace "molecool" -- workspace/solution name
     architecture "x86_64"
 
@@ -7,24 +9,24 @@ workspace "molecool" -- workspace/solution name
         "Release"
     }
 
-    outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
-    -- e.g. \Debug-windows-x86_64
+    outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}" -- e.g. \Debug-windows-x86_64
 
-    -- include paths and linking depend on the following environment variables
+    -- MKL library paths etc.
     mklRootDir = os.getenv("MKLROOT")   -- e.g. "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries_2020.1.216/windows/"
-    boostDir = os.getenv("BOOSTROOT")   -- e.g. "C:/Boost/boost_1_73_0/"
-
-    -- setup the mkl architecture for path construction
     mklArch = "intel64"
     filter "system:windows"
         mklArch = mklArch .. "_win"
     filter {}   -- deactivate filter
-
     mklLibDir = mklRootDir .. "mkl/lib/" .. mklArch .. "/"
     mklOmpDir = mklRootDir .. "compiler/lib/" .. mklArch .. "/"
     mklIncDir = mklRootDir .. "mkl/include"
 
+    -- Boost library paths etc.
+    boostDir = os.getenv("BOOSTROOT")   -- e.g. "C:/Boost/boost_1_73_0/"
+    boostLibDir = boostDir .. "stage/lib/"  
 
+
+------------------------------------------------------------------
 project "molecool"
     location "molecool"
     kind "StaticLib"
@@ -56,7 +58,8 @@ project "molecool"
     libdirs -- library search paths for the linker
     {
         mklLibDir,
-        mklOmpDir
+        mklOmpDir,
+        boostLibDir
     }
 
     links -- libraries/projects to link against, like VS's "references" 
@@ -71,13 +74,27 @@ project "molecool"
         
         defines 
         {
-            
+            MC_PLATFORM_WINDOWS
         }
 
         buildoptions 
         {
             "/openmp",
             "/DMKL_ILP64"
+        }
+
+    filter "system:macosx"
+
+        defines 
+        {
+            MC_PLATFORM_MACOSX
+        }
+
+    filter "system:linux"
+
+        defines 
+        {
+            MC_PLATFORM_LINUX
         }
 
     filter "configurations:Debug"
@@ -88,7 +105,7 @@ project "molecool"
         defines "NDEBUG"
         optimize "on"
 
- 
+------------------------------------------------------------------
 project "sandbox"
     location "sandbox"
     kind "ConsoleApp"
@@ -117,7 +134,8 @@ project "sandbox"
     libdirs
     {
         mklLibDir,
-        mklOmpDir
+        mklOmpDir,
+        boostLibDir
     }
 
     links 
@@ -133,7 +151,7 @@ project "sandbox"
 
         defines 
         {
-         
+            MC_PLATFORM_WINDOWS
         }
 
         buildoptions 

@@ -20,9 +20,7 @@ Alternatively, you can always create a local scope with {}:
 }                           // timer destroyed when leaving local scope, timing stops
 */
 
-#include <chrono>
-#include <string>
-#include "Log.h"
+#include "mcpch.h"
 
 struct ScopedTimer {
     std::chrono::time_point<std::chrono::steady_clock> start,end;
