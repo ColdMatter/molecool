@@ -1,5 +1,4 @@
-#include <time.h>
-#include "Log.h"
+#include "mcpch.h"
 #include "Random.h"
 
 namespace molecool {

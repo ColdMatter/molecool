@@ -1,10 +1,4 @@
-
-#include <omp.h>
-#include <mkl.h>
-#include <vector>
-#include <stdlib.h>
-
-#include "Log.h"
+#include "mcpch.h"
 #include "Ensemble.h"
 #include "Random.h"
 #include "ScopedTimer.h"
