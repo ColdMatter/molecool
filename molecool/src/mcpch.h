@@ -12,6 +12,7 @@
 #include <stdlib.h>     // size_t, EXIT_SUCCESS, etc.
 #include <time.h>
 #include <chrono>
+#include <cmath>        // standard and special math functions
 
 // high-performance library headers
 #include <omp.h>

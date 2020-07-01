@@ -1,59 +1,90 @@
 #pragma once
 
-#include <mkl.h>
-#include <omp.h>
-#include <array>
-#include <valarray>
-
+#include "mcpch.h"
 #include "Ensemble.h"
 #include "Random.h"
+
+#include <boost/numeric/odeint.hpp>
+#include <boost/numeric/odeint/external/openmp/openmp.hpp>
 
 // TO BE DEFINED BY CLIENT SIMULATION
 extern molecool::Simulation* molecool::createSimulation();
 
-template <typename T, size_t rows, size_t cols>
-void print2dArray(T(&array)[rows][cols])
-{
-	for (std::size_t i = 0; i < rows; ++i) {
-		for (std::size_t j = 0; j < cols; ++j) {
-			printf("%f ", array[i][j]);
+
+using state_type = std::vector<double>;
+//typedef std::vector<double> state_type;
+
+
+class harm_osc {
+	double m_gam;
+	
+public:
+	harm_osc(double gam) : m_gam(gam) { }
+	void operator() (state_type const& x, state_type const& v, state_type& a, double t)
+	{
+		int nDimensions = 1;
+		int nOscillators = x.size(); // / nDimensions;
+		for (size_t i = 0; i < nOscillators; i+=nDimensions) {
+			a[i] = -x[i] - m_gam * v[i];	// x dimension acceleration
+			// a[i+1] = ;					// y acceleration
+			// a[i+2] = ;					// z acceleration
 		}
-		printf("\n");
 	}
-}
-
-template <typename T, size_t rows>
-void print1dArray(T(&array)[rows])
-{
-	for (std::size_t i = 0; i < rows; ++i) {
-		printf("%f ", array[i]);
-	}
-	printf("\n");
-}
-
-// a function reports the current reference count for a shared_ptr
-// note: the count includes the one given to the function if pointer passed by value!
-void fun(std::shared_ptr<molecool::RandomStream> sp)
-{
-	MC_CORE_TRACE("shared pointer reference count is {0}",sp.use_count());
-}
+};
 
 
 // PROGRAM EXECUTION STARTS HERE
 int main(int argc, char** argv) {
 
 	using namespace molecool;
-
-	// engine initialization code goes here
+	using namespace boost::numeric::odeint;
 
 	//-------------------------------------
-	// logging initialiation and tests
+	// logging initialiation
 	Log::init();
 	MC_CORE_INFO("Welcome to the MOLECOOL engine v{0}", molecool::getEngineVersion());
 
 	omp_set_dynamic(0);
 	MC_CORE_INFO("Hardware check: {0} cores/threads available", omp_get_max_threads(), omp_get_dynamic());
+
+	// engine initialization code goes here
+
+	MC_INFO("Begin ODEINT harmonic oscillator test");
+	const int nOscillators = 100000;
+	state_type x(nOscillators);
+	state_type v(nOscillators);
+	// initial conditions
+	for (size_t i = 0; i < nOscillators; ++i) {
+		x[i] = 1.0 + .1 * i;
+		v[i] = 0.1*i;
+		//MC_TRACE("particle {0} started at {1} w/ vel {2}", i, x[i], v[i]);
+	}
+	// standard algebra + operations
+	using stepper_type = velocity_verlet< state_type >;	
+	// standard algebra + mkl operations
+	//using stepper_type = velocity_verlet< state_type, state_type, double, state_type, double, double, range_algebra, mkl_operations >;
+	// openmp algebra + mkl operations
+	//using stepper_type = velocity_verlet< state_type, state_type, double, state_type, double, double, openmp_range_algebra, mkl_operations >;
+	stepper_type stepper;
+	const double t0 = 0.0;
+	const double dt = 0.1;
+	double endT = 10.0;
+	harm_osc ho(0.15);
+	/*
+	for (double t = t0; t < endT; t += dt) {
+		stepper.do_step(ho2, std::make_pair(std::ref(x), std::ref(v)), t, dt);
+	}
+	*/
+	MC_INFO("--- integration started ---");
+	integrate_const(stepper, ho, std::make_pair(std::ref(x), std::ref(v)), t0, endT, dt);
+	MC_INFO("--- integration finished ---");
+	for (int i = 0; i < x.size(); ++i) {
+		//MC_TRACE("particle {0} ended at {1} w/ vel {2}", i, x[i], v[i]);
+	}
+
+	MC_INFO("End ODEINT harmonic oscillator test");
 	
+
 	// create and run the user simulation
 	MC_INFO("Creating client simulation...");
 	auto sim = createSimulation();

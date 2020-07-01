@@ -28,8 +28,8 @@ namespace molecool {
 			}
 			omp_set_num_threads(nDims);
 			#pragma omp parallel for
-				for (long i = 0; i < nDims; ++i) {
-					dists[i].sample(sps[i], nParticles, (double*)(&target.at(i * (long)nParticles)));	// write to target array	
+				for (int i = 0; i < nDims; ++i) {
+					dists[i].sample(sps[i], nParticles, (double*)(&target.at(i * nParticles)));	// write to target array	
 				}
 			MC_CORE_TRACE("Generation of random numbers finished");
 

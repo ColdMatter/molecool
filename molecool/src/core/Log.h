@@ -4,7 +4,7 @@
 #include "Core.h"
 #include "spdlog/spdlog.h"
 
-// core logging macros
+// core/engine logging macros
 #define MC_CORE_FATAL(...) molecool::Log::getCoreLogger()->critical(__VA_ARGS__)
 #define MC_CORE_ERROR(...) molecool::Log::getCoreLogger()->error(__VA_ARGS__)
 #define MC_CORE_INFO(...)  molecool::Log::getCoreLogger()->info(__VA_ARGS__)

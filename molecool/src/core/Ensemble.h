@@ -36,6 +36,7 @@ namespace molecool {
 	class  Ensemble {
 	
 	public:
+
 		Ensemble(int nParticles, std::array<Distribution, 6>& dists);
 		size_t getNumberOfParticles() { return states.size(); }
 	

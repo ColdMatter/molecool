@@ -2,11 +2,17 @@
 
 workspace "molecool" -- workspace/solution name
     architecture "x86_64"
+    startupproject "sandbox"
 
     configurations
     {
         "Debug",
         "Release"
+    }
+
+    flags 
+    {
+        "MultiProcessorCompile"
     }
 
     outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}" -- e.g. \Debug-windows-x86_64
@@ -100,10 +106,12 @@ project "molecool"
     filter "configurations:Debug"
         defines "_DEBUG"
         symbols "on"
+        runtime "Debug"
 
     filter "configurations:Release"
         defines "NDEBUG"
         optimize "on"
+        runtime "Release"
 
 ------------------------------------------------------------------
 project "sandbox"
@@ -163,8 +171,10 @@ project "sandbox"
     filter "configurations:Debug"
         defines "_DEBUG"
         symbols "on"
+        runtime "Debug"
 
     filter "configurations:Release"
         defines "NDEBUG"
         optimize "on"
+        runtime "Release"
 
