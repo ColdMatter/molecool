@@ -23,24 +23,31 @@ namespace molecool {
 			std::vector<double> tempPositions(nRandoms);	// target for particle positions
 			std::vector<double> tempVelocities(nRandoms);	// target for particle velocities
 			
-			// For random number generation, make a thread for each space coordinate for simplicity
+			// For random number generation, make a thread for each phase-space coordinate for simplicity
 			// create independent random number streams for each thread before parallel section
+			int nThreads = 2 * dimensions;
 			std::vector<std::shared_ptr<RandomStream>> sps;
-			for (int i = 0; i < dimensions; ++i) {
+			for (int i = 0; i < nThreads; ++i) {
 				sps.push_back(std::make_shared<RandomStream>(seed));
 			}
-			omp_set_num_threads(dimensions);
+			omp_set_num_threads(nThreads);
 			#pragma omp parallel for
-				for (int i = 0; i < dimensions; ++i) {
-					dists[i].first.sample(sps[i], nParticles, (double*)(&tempPositions[i * nParticles]));
-					dists[i].second.sample(sps[i], nParticles, (double*)(&tempVelocities[i * nParticles]));	
+				for (int i = 0; i < nThreads; ++i) {
+					if (i < dimensions) {
+						// positions
+						dists[i].first.sample(sps[i], nParticles, (double*)(&tempPositions[i * nParticles]));
+					}
+					else {
+						// velocities
+						dists[i-dimensions].second.sample(sps[i], nParticles, (double*)(&tempVelocities[(i-dimensions) * nParticles]));
+					}		
 				}
 			MC_CORE_TRACE("Generation of random numbers finished");
 			// in memory, tempPositions now looks like [ ... xs  ... ys ... zs ... ]
 			// and, similarly, tempVelocities looks like [ ... vxs ... vys ... vzs ... ]
-
-			// to organize the positions/velocites vectors by particle like [ x0, y0, z0, ... xN, yN, zN]
-			// and [ vx0, vy0, vz0, ... vxN, vyN, vzN ], transpose the temporary target vectors 
+			// i.e. both look like row-major matrices with contiguous storage
+			// to organize the positions/velocities vectors by particle like [ x0, y0, z0, ... xN, yN, zN]
+			// and [ vx0, vy0, vz0, ... vxN, vyN, vzN ], transpose the temporary target vectors into class member vectors
 			MC_CORE_INFO("Initializing ensemble states");
 			mkl_domatcopy('R', 'T', dimensions, particles, 1, tempPositions.data(), particles, (double*)positions.data(), dimensions);
 			mkl_domatcopy('R', 'T', dimensions, particles, 1, tempVelocities.data(), particles, (double*)velocities.data(), dimensions);
