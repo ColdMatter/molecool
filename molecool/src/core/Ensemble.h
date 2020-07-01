@@ -6,6 +6,8 @@
 
 namespace molecool {
 
+	enum class Particle { Rb, CaF, YbF};
+
 	// a 3-component cartesian vector
 	struct Vector {
 		Vector(double x = 0, double y = 0, double z = 0)
@@ -37,12 +39,20 @@ namespace molecool {
 	
 	public:
 
-		Ensemble(int nParticles, std::array<Distribution, 6>& dists);
-		size_t getNumberOfParticles() { return states.size(); }
+		Ensemble(int nParticles, Particle p, std::vector< std::pair< Distribution, Distribution> >& dists);
+		inline int getNumberOfParticles() { return particles; }
+		inline int getNumberOfDimensions() { return dimensions; }
+		inline std::vector<double>& getPositions() { return positions; }
+		inline std::vector<double>& getVelocities() { return velocities; }
 	
 	private:
-		std::vector<State> states;
-		std::array<Distribution, 6> distributions;	// copy of distributions used to create the ensemble
+		int particles;					// number of particles
+		int dimensions;					// number of spatial dimensions
+		Particle particle;
+		std::vector<double> positions;	// organized by particle as [ x0, y0, z0, x1, y1, z1, ... ]
+		std::vector<double> velocities;	// organized by particle as [ vx0, vy0, vz0, vx1, vy1, vz1, ... ]
+		std::vector< std::pair< Distribution, Distribution> > distributions;
+
 	};
 
 }

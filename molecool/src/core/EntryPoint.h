@@ -4,16 +4,11 @@
 #include "Ensemble.h"
 #include "Random.h"
 
-#include <boost/numeric/odeint.hpp>
-#include <boost/numeric/odeint/external/openmp/openmp.hpp>
-
 // TO BE DEFINED BY CLIENT SIMULATION
 extern molecool::Simulation* molecool::createSimulation();
 
 
 using state_type = std::vector<double>;
-//typedef std::vector<double> state_type;
-
 
 class harm_osc {
 	double m_gam;
@@ -50,7 +45,7 @@ int main(int argc, char** argv) {
 	// engine initialization code goes here
 
 	MC_INFO("Begin ODEINT harmonic oscillator test");
-	const int nOscillators = 100000;
+	const int nOscillators = 100;
 	state_type x(nOscillators);
 	state_type v(nOscillators);
 	// initial conditions

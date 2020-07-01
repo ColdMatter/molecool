@@ -13,10 +13,15 @@
 #include <time.h>
 #include <chrono>
 #include <cmath>        // standard and special math functions
+#include <assert.h>
 
 // high-performance library headers
 #include <omp.h>
 #include <mkl.h>
+
+// boost library headers
+#include <boost/numeric/odeint.hpp>
+#include <boost/numeric/odeint/external/openmp/openmp.hpp>
 
 // project headers that shouldn't change very often
 #include "core/Log.h"
