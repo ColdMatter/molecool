@@ -3,10 +3,10 @@
 #include "mcpch.h"
 #include "Ensemble.h"
 #include "Random.h"
+#include "Timer.h"
 
 // TO BE DEFINED BY CLIENT SIMULATION
 extern molecool::Simulation* molecool::createSimulation();
-
 
 using state_type = std::vector<double>;
 
@@ -17,6 +17,7 @@ public:
 	harm_osc(double gam) : m_gam(gam) { }
 	void operator() (state_type const& x, state_type const& v, state_type& a, double t)
 	{
+		molecool::Timer("system function");
 		int nDimensions = 1;
 		int nOscillators = x.size(); // / nDimensions;
 		for (size_t i = 0; i < nOscillators; i+=nDimensions) {

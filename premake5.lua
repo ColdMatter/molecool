@@ -2,7 +2,7 @@
 
 workspace "molecool" -- workspace/solution name
     architecture "x86_64"
-    startupproject "sandbox"
+    startproject "sandbox"
 
     configurations
     {
@@ -80,7 +80,8 @@ project "molecool"
         
         defines 
         {
-            MC_PLATFORM_WINDOWS
+            MC_PLATFORM_WINDOWS,
+            NOMINMAX
         }
 
         buildoptions 
@@ -159,7 +160,8 @@ project "sandbox"
 
         defines 
         {
-            MC_PLATFORM_WINDOWS
+            MC_PLATFORM_WINDOWS,
+            NOMINMAX
         }
 
         buildoptions 

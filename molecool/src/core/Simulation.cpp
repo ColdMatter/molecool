@@ -1,5 +1,6 @@
 #include "mcpch.h"
 #include "Simulation.h"
+#include "Timer.h"
 
 namespace molecool {
 
@@ -14,6 +15,7 @@ namespace molecool {
     }
     
     void Simulation::run() {
+        molecool::TimerManager::getInstance()->summary();
         while (true) {
 
         }
