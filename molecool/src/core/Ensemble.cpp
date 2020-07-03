@@ -7,6 +7,7 @@ namespace molecool {
 	Ensemble::Ensemble(int nParticles, Particle p, std::vector< std::pair< Distribution, Distribution> >& dists)
 		: particles(nParticles), particle(p), distributions(dists)
 	{
+		MC_PROFILE_FUNCTION();
 		try {
 			MC_CORE_INFO("Creating an ensemble of {0} particles of type {1}", particles, particle);
 			dimensions = (int)distributions.size();
@@ -48,10 +49,13 @@ namespace molecool {
 			// i.e. both look like row-major matrices with contiguous storage
 			// to organize the positions/velocities vectors by particle like [ x0, y0, z0, ... xN, yN, zN]
 			// and [ vx0, vy0, vz0, ... vxN, vyN, vzN ], transpose the temporary target vectors into class member vectors
-			MC_CORE_INFO("Initializing ensemble states");
-			mkl_domatcopy('R', 'T', dimensions, particles, 1, tempPositions.data(), particles, (double*)positions.data(), dimensions);
-			mkl_domatcopy('R', 'T', dimensions, particles, 1, tempVelocities.data(), particles, (double*)velocities.data(), dimensions);
-			MC_CORE_INFO("Initialization finished");
+			{
+				MC_PROFILE_SCOPE("states initialization");
+				MC_CORE_INFO("Initializing ensemble states");
+				mkl_domatcopy('R', 'T', dimensions, particles, 1, tempPositions.data(), particles, (double*)positions.data(), dimensions);
+				mkl_domatcopy('R', 'T', dimensions, particles, 1, tempVelocities.data(), particles, (double*)velocities.data(), dimensions);
+				MC_CORE_INFO("Initialization finished");
+			}
 		}
 		catch (...) {
 			MC_CORE_FATAL("Unable to create ensemble (probably insufficient memory) - exiting.");

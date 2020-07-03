@@ -67,7 +67,7 @@ namespace molecool {
         inline double getMean() { return boost::accumulators::mean(m_acc); }
         inline double getMin() { return boost::accumulators::extract_result< boost::accumulators::tag::min >(m_acc); }
         inline double getMax() { return boost::accumulators::extract_result< boost::accumulators::tag::max >(m_acc); }
-        inline int getCount() { return boost::accumulators::count(m_acc); }
+        inline size_t getCount() { return boost::accumulators::count(m_acc); }
         inline double getSum() { return boost::accumulators::sum(m_acc); }
 
     };
@@ -103,7 +103,7 @@ namespace molecool {
 
     private:
         TimerManager();
-        static std::vector< TimerReport > s_timerReports;
+        static std::vector<TimerReport> s_timerReports;
     };
 
 }

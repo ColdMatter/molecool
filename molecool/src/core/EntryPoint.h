@@ -18,8 +18,9 @@ public:
 	void operator() (state_type const& x, state_type const& v, state_type& a, double t)
 	{
 		molecool::Timer("system function");
+		MC_PROFILE_FUNCTION();
 		int nDimensions = 1;
-		int nOscillators = x.size(); // / nDimensions;
+		int nOscillators = (int)x.size(); // / nDimensions;
 		for (size_t i = 0; i < nOscillators; i+=nDimensions) {
 			a[i] = -x[i] - m_gam * v[i];	// x dimension acceleration
 			// a[i+1] = ;					// y acceleration
@@ -77,15 +78,23 @@ int main(int argc, char** argv) {
 	for (int i = 0; i < x.size(); ++i) {
 		//MC_TRACE("particle {0} ended at {1} w/ vel {2}", i, x[i], v[i]);
 	}
-
 	MC_INFO("End ODEINT harmonic oscillator test");
 	
 
 	// create and run the user simulation
 	MC_INFO("Creating client simulation...");
+
+	MC_PROFILE_BEGIN_SESSION("startup", "profile_startup.json");
 	auto sim = createSimulation();
+	MC_PROFILE_END_SESSION();
+
+	MC_PROFILE_BEGIN_SESSION("runtime", "profile_runtime.json");
 	sim->run();
+	MC_PROFILE_END_SESSION();
+
+	MC_PROFILE_BEGIN_SESSION("shutdown", "profile_shutdown.json");
 	delete sim;
+	MC_PROFILE_END_SESSION();
 	//-------------------------------------
 
 	return 0;

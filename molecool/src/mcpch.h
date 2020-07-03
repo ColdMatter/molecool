@@ -26,3 +26,4 @@
 // project headers that shouldn't change very often
 #include "core/Log.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
+#include "debug/Instrumentor.h"
