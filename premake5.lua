@@ -7,7 +7,8 @@ workspace "molecool" -- workspace/solution name
     configurations
     {
         "Debug",
-        "Release"
+        "Release",
+        "Dist"
     }
 
     flags 
@@ -105,14 +106,30 @@ project "molecool"
         }
 
     filter "configurations:Debug"
-        defines "_DEBUG"
         symbols "on"
         runtime "Debug"
+        defines 
+        {
+            "_DEBUG",
+            "MC_PROFILE"
+        }
 
     filter "configurations:Release"
-        defines "NDEBUG"
         optimize "on"
         runtime "Release"
+        defines 
+        {
+            "NDEBUG",
+            "MC_PROFILE"
+        }
+
+    filter "configurations:Dist"
+        optimize "on"
+        runtime "Release"
+        defines 
+        {
+            "NDEBUG"
+        }
 
 ------------------------------------------------------------------
 project "sandbox"
@@ -171,12 +188,28 @@ project "sandbox"
         }
 
     filter "configurations:Debug"
-        defines "_DEBUG"
         symbols "on"
         runtime "Debug"
+        defines 
+        {
+            "_DEBUG",
+            "MC_PROFILE"
+        }
 
     filter "configurations:Release"
-        defines "NDEBUG"
         optimize "on"
         runtime "Release"
+        defines 
+        {
+            "NDEBUG",
+            "MC_PROFILE"
+        }
+
+    filter "configurations:Dist"
+        optimize "on"
+        runtime "Release"
+        defines 
+        {
+            "NDEBUG"
+        }
 
