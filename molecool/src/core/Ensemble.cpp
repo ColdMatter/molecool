@@ -50,7 +50,7 @@ namespace molecool {
 			// to organize the positions/velocities vectors by particle like [ x0, y0, z0, ... xN, yN, zN]
 			// and [ vx0, vy0, vz0, ... vxN, vyN, vzN ], transpose the temporary target vectors into class member vectors
 			{
-				MC_PROFILE_SCOPE("states initialization");
+				MC_PROFILE_SCOPE("ensemble states initialization");
 				MC_CORE_INFO("Initializing ensemble states");
 				mkl_domatcopy('R', 'T', dimensions, particles, 1, tempPositions.data(), particles, (double*)positions.data(), dimensions);
 				mkl_domatcopy('R', 'T', dimensions, particles, 1, tempVelocities.data(), particles, (double*)velocities.data(), dimensions);

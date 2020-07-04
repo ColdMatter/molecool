@@ -111,7 +111,6 @@ project "molecool"
         defines 
         {
             "_DEBUG",
-            "MC_PROFILE"
         }
 
     filter "configurations:Release"
@@ -120,7 +119,6 @@ project "molecool"
         defines 
         {
             "NDEBUG",
-            "MC_PROFILE"
         }
 
     filter "configurations:Dist"
@@ -193,7 +191,6 @@ project "sandbox"
         defines 
         {
             "_DEBUG",
-            "MC_PROFILE"
         }
 
     filter "configurations:Release"
@@ -202,7 +199,6 @@ project "sandbox"
         defines 
         {
             "NDEBUG",
-            "MC_PROFILE"
         }
 
     filter "configurations:Dist"

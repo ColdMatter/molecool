@@ -3,7 +3,7 @@
 #include "mcpch.h"
 #include "Ensemble.h"
 #include "Random.h"
-#include "Timer.h"
+//#include "Timer.h"
 
 // TO BE DEFINED BY CLIENT SIMULATION
 extern molecool::Simulation* molecool::createSimulation();
@@ -17,7 +17,7 @@ public:
 	harm_osc(double gam) : m_gam(gam) { }
 	void operator() (state_type const& x, state_type const& v, state_type& a, double t)
 	{
-		molecool::Timer("system function");
+		//molecool::Timer("system function");
 		MC_PROFILE_FUNCTION();
 		int nDimensions = 1;
 		int nOscillators = (int)x.size(); // / nDimensions;
@@ -84,15 +84,15 @@ int main(int argc, char** argv) {
 	// create and run the user simulation
 	MC_INFO("Creating client simulation...");
 
-	MC_PROFILE_BEGIN_SESSION("startup", "profile_startup.json");
+	MC_PROFILE_BEGIN_SESSION("startup");
 	auto sim = createSimulation();
 	MC_PROFILE_END_SESSION();
 
-	MC_PROFILE_BEGIN_SESSION("runtime", "profile_runtime.json");
+	MC_PROFILE_BEGIN_SESSION("runtime");
 	sim->run();
 	MC_PROFILE_END_SESSION();
 
-	MC_PROFILE_BEGIN_SESSION("shutdown", "profile_shutdown.json");
+	MC_PROFILE_BEGIN_SESSION("shutdown");
 	delete sim;
 	MC_PROFILE_END_SESSION();
 	//-------------------------------------
