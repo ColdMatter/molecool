@@ -41,7 +41,7 @@ namespace molecool {
 
 		// generate the ensemble of particles and initialize them using the given distributions
 		// 1e7 particles occupy ~500MB of heap memory (peak usage during construction is double that)
-		long nParticles = 1'000;	
+		long nParticles = 1'000'000;	
 		Ensemble ensemble(nParticles, Particle::CaF, dists);
 
 		std::vector<double>& ps = ensemble.getPositions();		// get reference to positions vector to do stuff

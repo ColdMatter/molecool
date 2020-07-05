@@ -10,6 +10,7 @@ namespace molecool {
     }
     
     void Simulation::run() {
+        MC_PROFILE_FUNCTION();
         // for now, just wait for input from user, any key press will close the program
         std::cout << "press any key to end" << std::endl;
         std::cin.get();
