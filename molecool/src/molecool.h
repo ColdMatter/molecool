@@ -20,6 +20,10 @@
 #include "core/Random.h"
 //----------------------------------------------------------
 
+//--- Particle ensemble ------------------------------------
+#include "core/Ensemble.h"
+//----------------------------------------------------------
+
 //--- Entry point [main()] for client simulation -----------
 // main() is defined here
 #include "core/EntryPoint.h"

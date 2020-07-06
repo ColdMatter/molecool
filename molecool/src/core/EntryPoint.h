@@ -1,9 +1,6 @@
 #pragma once
-
+#include "Core.h"
 #include "mcpch.h"
-#include "Ensemble.h"
-#include "Random.h"
-//#include "Timer.h"
 
 // TO BE DEFINED BY CLIENT SIMULATION
 extern molecool::Simulation* molecool::createSimulation();
@@ -39,7 +36,7 @@ int main(int argc, char** argv) {
 	//-------------------------------------
 	// logging initialiation
 	Log::init();
-	MC_CORE_INFO("Welcome to the MOLECOOL engine v{0}", molecool::getEngineVersion());
+	MC_CORE_INFO("Welcome to the MOLECOOL engine v{0}", getEngineVersion());
 
 	omp_set_dynamic(0);
 	MC_CORE_INFO("Hardware check: {0} cores/threads available", omp_get_max_threads(), omp_get_dynamic());
@@ -67,31 +64,55 @@ int main(int argc, char** argv) {
 	const double dt = 0.1;
 	double endT = 10.0;
 	harm_osc ho(0.15);
+	MC_INFO("--- integration started ---");
 	/*
 	for (double t = t0; t < endT; t += dt) {
 		stepper.do_step(ho2, std::make_pair(std::ref(x), std::ref(v)), t, dt);
 	}
 	*/
-	MC_INFO("--- integration started ---");
 	integrate_const(stepper, ho, std::make_pair(std::ref(x), std::ref(v)), t0, endT, dt);
 	MC_INFO("--- integration finished ---");
-	for (int i = 0; i < x.size(); ++i) {
-		//MC_TRACE("particle {0} ended at {1} w/ vel {2}", i, x[i], v[i]);
-	}
 	MC_INFO("End ODEINT harmonic oscillator test");
+
+	//-------------------------------------
+	MC_INFO("Begin ODEINT ensemble propagation test");
+	// A quick test of ensemble creation and initialization
+	// construct desired position and velocity distributions
+	Distribution xDist = Distribution(Shape::gaussian, 0, 0.1);
+	Distribution vxDist = Distribution(Shape::gaussian, 1, 0.1);
+	//Distribution yDist = Distribution(Shape::gaussian, 2, 0.1);
+	//Distribution vyDist = Distribution(Shape::gaussian, 3, 0.1);
+	//Distribution zDist = Distribution(Shape::gaussian, 4, 0.1);
+	//Distribution vzDist = Distribution(Shape::gaussian, 5, 0.1);
+	// create a vector to hold pairs of distributions and fill it
+	std::vector< std::pair< Distribution, Distribution> > dists;
+	dists.push_back(std::make_pair(xDist, vxDist));
+	//dists.push_back(std::make_pair(yDist, vyDist));
+	//dists.push_back(std::make_pair(zDist, vzDist));
+
+	// generate the ensemble of particles and initialize them using the given distributions
+	// 1e7 particles occupy ~500MB of heap memory (peak usage during construction is double that)
+	long nParticles = 1'000;
+	Ensemble ensemble(nParticles, Particle::CaF, dists);
+	std::vector<double>& ps = ensemble.getPositions();		// get reference to positions vector to do stuff
+	std::vector<double>& vs = ensemble.getVelocities();
+	ps[0] = 10.0;											// like direct access or assignment
+	integrate_const(stepper, ho, std::make_pair(std::ref(ps), std::ref(vs)), t0, endT, dt);
+	MC_INFO("End ODEINT ensemble propagation test");
+	//-------------------------------------
 	
 
-	// create and run the user simulation
 	MC_INFO("Creating client simulation...");
-
 	MC_PROFILE_BEGIN_SESSION("startup");
 	auto sim = createSimulation();
 	MC_PROFILE_END_SESSION();
 
+	MC_INFO("Running client simulation...");
 	MC_PROFILE_BEGIN_SESSION("runtime");
 	sim->run();
 	MC_PROFILE_END_SESSION();
 
+	MC_INFO("Ending client simulation...");
 	MC_PROFILE_BEGIN_SESSION("shutdown");
 	delete sim;
 	MC_PROFILE_END_SESSION();

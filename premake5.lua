@@ -7,8 +7,7 @@ workspace "molecool" -- workspace/solution name
     configurations
     {
         "Debug",
-        "Release",
-        "Dist"
+        "Release"
     }
 
     flags 
@@ -48,29 +47,25 @@ project "molecool"
     pchheader "mcpch.h"
     pchsource "molecool/src/mcpch.cpp" -- VS only, ignored on other compilers
 
-    files -- files to include in project
-    {
+    files {
         "%{prj.name}/src/**.h",
         "%{prj.name}/src/**.cpp"
     }
 
-    includedirs -- compiler include directories
-    {
+    includedirs {
         "%{prj.name}/src",
         "%{prj.name}/vendor/spdlog/include",
         boostDir,
         mklIncDir
     }
 
-    libdirs -- library search paths for the linker
-    {
+    libdirs {
         mklLibDir,
         mklOmpDir,
         boostLibDir
     }
 
-    links -- libraries/projects to link against, like VS's "references" 
-    {
+    links {
         "mkl_intel_ilp64.lib",     -- interface
         "mkl_intel_thread.lib",    -- threading
         "mkl_core.lib",            -- core
@@ -79,54 +74,51 @@ project "molecool"
 
     filter "system:windows"
         
-        defines 
-        {
-            MC_PLATFORM_WINDOWS,
-            NOMINMAX
+        defines {
+            MC_PLATFORM_WINDOWS
         }
 
-        buildoptions 
-        {
+        buildoptions {
             "/openmp",
             "/DMKL_ILP64"
         }
 
     filter "system:macosx"
 
-        defines 
-        {
+        defines {
             MC_PLATFORM_MACOSX
+        }
+
+        buildoptions {
+            "-qopenmp",
+            "-DMKL_ILP64"
         }
 
     filter "system:linux"
 
-        defines 
-        {
+        defines {
             MC_PLATFORM_LINUX
+        }
+
+        buildoptions {
+            "-qopenmp",
+            "-DMKL_ILP64"
         }
 
     filter "configurations:Debug"
         symbols "on"
         runtime "Debug"
-        defines 
-        {
-            "_DEBUG",
+        
+        defines {
+            "MC_DEBUG"
         }
 
     filter "configurations:Release"
         optimize "on"
         runtime "Release"
-        defines 
-        {
-            "NDEBUG",
-        }
-
-    filter "configurations:Dist"
-        optimize "on"
-        runtime "Release"
-        defines 
-        {
-            "NDEBUG"
+        
+        defines {
+            "MC_RELEASE"
         }
 
 ------------------------------------------------------------------
@@ -141,29 +133,25 @@ project "sandbox"
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
     objdir ("build/" .. outputdir .. "/%{prj.name}")
 
-    files
-    {
+    files {
         "%{prj.name}/src/**.h",
         "%{prj.name}/src/**.cpp"
     }
 
-    includedirs
-    {
+    includedirs {
         "molecool/src",
         "molecool/vendor/spdlog/include",
         boostDir,
         mklIncDir
     }
 
-    libdirs
-    {
+    libdirs {
         mklLibDir,
         mklOmpDir,
         boostLibDir
     }
 
-    links 
-    {
+    links {
         "molecool",
         "mkl_intel_ilp64.lib",    
         "mkl_intel_thread.lib",    
@@ -173,39 +161,52 @@ project "sandbox"
 
     filter "system:windows"
 
-        defines 
-        {
-            MC_PLATFORM_WINDOWS,
-            NOMINMAX
+        defines {
+            MC_PLATFORM_WINDOWS
         }
 
-        buildoptions 
-        {
+        buildoptions {
             "/openmp",
             "/DMKL_ILP64"
+        }
+
+    filter "system:macosx"
+
+        defines {
+            MC_PLATFORM_MACOSX
+        }
+
+        buildoptions {
+            "-qopenmp",
+            "-DMKL_ILP64"
+        }
+
+    filter "system:linux"
+
+        defines {
+            MC_PLATFORM_LINUX
+        }
+
+        buildoptions {
+            "-qopenmp",
+            "-DMKL_ILP64"
         }
 
     filter "configurations:Debug"
         symbols "on"
         runtime "Debug"
-        defines 
-        {
+        
+        defines {
             "_DEBUG",
+            "MC_DEBUG"
         }
 
     filter "configurations:Release"
         optimize "on"
         runtime "Release"
-        defines 
-        {
+        
+        defines {
             "NDEBUG",
-        }
-
-    filter "configurations:Dist"
-        optimize "on"
-        runtime "Release"
-        defines 
-        {
-            "NDEBUG"
+            "MC_RELEASE"
         }
 
