@@ -3,6 +3,7 @@
 #include "mcpch.h"
 #include "lua.h"
 
+
 // TO BE DEFINED BY CLIENT SIMULATION
 extern molecool::Simulation* molecool::createSimulation();
 
@@ -18,9 +19,10 @@ public:
 		MC_PROFILE_FUNCTION();
 		int nDimensions = 3;
 		int nOscillators = (int)x.size() / nDimensions;
-		for (size_t i = 0; i < nOscillators; i+=nDimensions) {
-			for (size_t j = 0; j < nDimensions; ++j) {
-				a[i + j] = x[i + j] - m_gam * v[i + j];
+		#pragma omp parallel for schedule(static)
+		for (int i = 0; i < nOscillators; i++) {
+			for (int j = 0; j < nDimensions; ++j) {
+				a[i + j] = -x[i + j] - m_gam * v[i + j];
 			}
 		}
 	}
@@ -42,17 +44,18 @@ int main(int argc, char** argv) {
 	MC_CORE_INFO("Hardware check: {0} cores/threads available", omp_get_max_threads(), omp_get_dynamic());
 
 	// engine initialization code goes here
+	MC_PROFILE_BEGIN_SESSION("startup");
 
 	//-------------------------------------
 	MC_INFO("Begin ODEINT ensemble propagation test");
 	// A quick test of ensemble creation and initialization
 	// construct desired position and velocity distributions
-	Distribution xDist = Distribution(Shape::gaussian, 0, 0.1);
-	Distribution vxDist = Distribution(Shape::gaussian, 1, 0.1);
-	Distribution yDist = Distribution(Shape::gaussian, 2, 0.1);
-	Distribution vyDist = Distribution(Shape::gaussian, 3, 0.1);
-	Distribution zDist = Distribution(Shape::gaussian, 4, 0.1);
-	Distribution vzDist = Distribution(Shape::gaussian, 5, 0.1);
+	Distribution xDist = Distribution(Shape::gaussian, 0, 1.0);
+	Distribution vxDist = Distribution(Shape::gaussian, 0, 1.0);
+	Distribution yDist = Distribution(Shape::gaussian, 0, 1.0);
+	Distribution vyDist = Distribution(Shape::gaussian, 0, 1.0);
+	Distribution zDist = Distribution(Shape::gaussian, 0, 1.0);
+	Distribution vzDist = Distribution(Shape::gaussian, 0, 1.0);
 	// create a vector to hold pairs of distributions and fill it
 	std::vector< std::pair< Distribution, Distribution> > dists;
 	dists.push_back(std::make_pair(xDist, vxDist));
@@ -61,31 +64,30 @@ int main(int argc, char** argv) {
 
 	// generate the ensemble of particles and initialize them using the given distributions
 	// 1e7 particles occupy ~500MB of heap memory (peak usage during construction is double that)
-	long nParticles = 10'000;
+	long nParticles = 1'000'000;
 	Ensemble ensemble(nParticles, Particle::CaF, dists);
 	std::vector<double>& ps = ensemble.getPositions();		// get reference to positions vector to do stuff
 	std::vector<double>& vs = ensemble.getVelocities();
 	harm_osc ho(0.1);
 	{
 		MC_PROFILE_SCOPE("propagation");
-		// standard algebra + operations
-		using stepper_type = velocity_verlet< state_type >;
-		// standard algebra + mkl operations
-		//using stepper_type = velocity_verlet< state_type, state_type, double, state_type, double, double, range_algebra, mkl_operations >;
-		// openmp algebra + mkl operations
-		//using stepper_type = velocity_verlet< state_type, state_type, double, state_type, double, double, openmp_range_algebra, mkl_operations >;
+		// using openmp algebra + standard operations + openmp system() function seems to reliably be the fastest
+		// doesn't seem to be compatible with using the mkl operations, which appear to require a vector_algebra
+		//using stepper_type = velocity_verlet< state_type >;
+		//using stepper_type = velocity_verlet< state_type, state_type, double, state_type, double, double, vector_space_algebra, mkl_operations >;
+		using stepper_type = velocity_verlet< state_type, state_type, double, state_type, double, double, openmp_range_algebra >;
 		stepper_type stepper;
-		const double t0 = 0.0;
-		const double dt = 0.1;
-		double endT = 10.0;// like direct access or assignment
-		integrate_const(stepper, ho, std::make_pair(std::ref(ps), std::ref(vs)), t0, endT, dt);
+		const double startT = 0.0;
+		const double dt = 0.001;
+		const double endT = 1.0;
+		integrate_const(stepper, ho, std::make_pair(std::ref(ps), std::ref(vs)), startT, endT, dt);
 	}
 	MC_INFO("End ODEINT ensemble propagation test");
 	//-------------------------------------
 	
 
 	MC_INFO("Creating client simulation...");
-	MC_PROFILE_BEGIN_SESSION("startup");
+	//MC_PROFILE_BEGIN_SESSION("startup");
 	auto sim = createSimulation();
 	MC_PROFILE_END_SESSION();
 
