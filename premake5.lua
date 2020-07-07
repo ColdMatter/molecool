@@ -56,7 +56,8 @@ project "molecool"
         "%{prj.name}/src",
         "%{prj.name}/vendor/spdlog/include",
         boostDir,
-        mklIncDir
+        mklIncDir,
+        "%{solutionDir}/vendor/lua"
     }
 
     libdirs {
@@ -142,7 +143,8 @@ project "sandbox"
         "molecool/src",
         "molecool/vendor/spdlog/include",
         boostDir,
-        mklIncDir
+        mklIncDir,
+        "%{solutionDir}/vendor/lua"
     }
 
     libdirs {
