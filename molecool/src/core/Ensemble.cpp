@@ -32,14 +32,13 @@ namespace molecool {
 					// For random number generation, make a thread for each phase-space coordinate for simplicity
 					// create independent random number streams for each thread before parallel section
 					int seed = (int)time(0);
-					int nThreads = 2 * dimensions;
+					int nDists = 2 * dimensions;
 					std::vector<std::shared_ptr<RandomStream>> sps;
-					for (int i = 0; i < nThreads; ++i) {
+					for (int i = 0; i < nDists; ++i) {
 						sps.push_back(std::make_shared<RandomStream>(seed));
 					}
-					omp_set_num_threads(nThreads);
 					#pragma omp parallel for
-					for (int i = 0; i < nThreads; ++i) {
+					for (int i = 0; i < nDists; ++i) {
 						if (i < dimensions) {
 							// positions
 							dists[i].first.sample(sps[i], nParticles, (double*)(&tempPositions[i * nParticles]));

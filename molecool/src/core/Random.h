@@ -20,14 +20,13 @@ Usage examples of ContinuousDistribution class:
     double singleSample = dist.sample(sp);                       // just grab a single sample (slower)
     
 2) Multi-threaded example, requires building a vector of shared_ptrs before entering parallel region
-    const int nThreads = 2;
+
     int seed = (int)time(0);
     std::vector<std::shared_ptr<RandomStream>> sps;
-    for (int i = 0; i < nThreads; ++i) {
+    for (int i = 0; i < 2; ++i) {
         sps.push_back(std::make_shared<RandomStream>(seed));
     }
-    omp_set_num_threads(nThreads);
-    #pragma omp parallel 
+    #pragma omp parallel for 
     {
         int threadId = omp_get_thread_num();
         double b[10];

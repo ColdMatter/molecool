@@ -176,7 +176,7 @@ namespace molecool {
 			}
 		}
 
-		void gatherStats(const std::string name, double time)
+		void accumulate(const std::string name, double time)
 		{
 			auto it = std::find_if(m_stats.begin(), m_stats.end(), [&name](const TimerStats& obj) {return obj.name == name; });
 			if (it != m_stats.end()) {
@@ -285,7 +285,7 @@ namespace molecool {
 			auto highResStart = FloatingPointMicroseconds{ m_StartTimepoint.time_since_epoch() };
 			auto elapsedTime = std::chrono::time_point_cast<std::chrono::microseconds>(endTimepoint).time_since_epoch() - std::chrono::time_point_cast<std::chrono::microseconds>(m_StartTimepoint).time_since_epoch();
 
-			Profiler::get().gatherStats(m_Name, (double)elapsedTime.count());
+			Profiler::get().accumulate(m_Name, (double)elapsedTime.count());
 			if (MC_PROFILE_VERBOSE) {
 				Profiler::get().writeProfile({ m_Name, highResStart, elapsedTime, std::this_thread::get_id() });
 			}

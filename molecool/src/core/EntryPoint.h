@@ -19,10 +19,21 @@ public:
 		MC_PROFILE_FUNCTION();
 		int nDimensions = 3;
 		int nOscillators = (int)x.size() / nDimensions;
-		#pragma omp parallel for schedule(static)
-		for (int i = 0; i < nOscillators; i++) {
+		#pragma omp parallel for
+		for (int i = 0; i < nOscillators; i+=nDimensions) {
 			for (int j = 0; j < nDimensions; ++j) {
-				a[i + j] = -x[i + j] - m_gam * v[i + j];
+				if (x[i+j] > 1.0) {
+					// this is naughty, breaking the const promise for efficiency purposes
+					MC_CORE_TRACE("particle {0} lost at ({1},{2},{3})", i, x[i], x[i + 1], x[i + 2]);
+					double* vv = (double*)&v[i];			// break the const promise!
+					*vv = 0.0;								// otherwise have to loop back through to test after each time step
+															// probably better to do this in the observer!
+					MC_CORE_TRACE("particle {0} now has v = ({1},{2},{3})", i, v[i], v[i + 1], v[i + 2]);
+				}
+				else {
+					a[i + j] = -x[i + j] - m_gam * v[i + j];
+				}
+
 			}
 		}
 	}
@@ -40,8 +51,9 @@ int main(int argc, char** argv) {
 	Log::init();
 	MC_CORE_INFO("Welcome to the MOLECOOL engine v{0}", getEngineVersion());
 
+	MC_CORE_INFO("Hardware check: {0} threads available", omp_get_max_threads());
 	omp_set_dynamic(0);
-	MC_CORE_INFO("Hardware check: {0} cores/threads available", omp_get_max_threads(), omp_get_dynamic());
+	//omp_set_num_threads(3);	// uncomment or adjust to compare timing with different thread counts
 
 	// engine initialization code goes here
 	MC_PROFILE_BEGIN_SESSION("startup");
@@ -50,12 +62,12 @@ int main(int argc, char** argv) {
 	MC_INFO("Begin ODEINT ensemble propagation test");
 	// A quick test of ensemble creation and initialization
 	// construct desired position and velocity distributions
-	Distribution xDist = Distribution(Shape::gaussian, 0, 1.0);
-	Distribution vxDist = Distribution(Shape::gaussian, 0, 1.0);
-	Distribution yDist = Distribution(Shape::gaussian, 0, 1.0);
-	Distribution vyDist = Distribution(Shape::gaussian, 0, 1.0);
-	Distribution zDist = Distribution(Shape::gaussian, 0, 1.0);
-	Distribution vzDist = Distribution(Shape::gaussian, 0, 1.0);
+	Distribution xDist = Distribution(Shape::gaussian, 0.0, 1.0);
+	Distribution vxDist = Distribution(Shape::gaussian, 0.0, 1.0);
+	Distribution yDist = Distribution(Shape::gaussian, 0.0, 1.0);
+	Distribution vyDist = Distribution(Shape::gaussian, 0.0, 1.0);
+	Distribution zDist = Distribution(Shape::gaussian, 0.0, 1.0);
+	Distribution vzDist = Distribution(Shape::gaussian, 0.0, 1.0);
 	// create a vector to hold pairs of distributions and fill it
 	std::vector< std::pair< Distribution, Distribution> > dists;
 	dists.push_back(std::make_pair(xDist, vxDist));
@@ -64,7 +76,7 @@ int main(int argc, char** argv) {
 
 	// generate the ensemble of particles and initialize them using the given distributions
 	// 1e7 particles occupy ~500MB of heap memory (peak usage during construction is double that)
-	long nParticles = 1'000'000;
+	int nParticles = 100;
 	Ensemble ensemble(nParticles, Particle::CaF, dists);
 	std::vector<double>& ps = ensemble.getPositions();		// get reference to positions vector to do stuff
 	std::vector<double>& vs = ensemble.getVelocities();
@@ -72,7 +84,9 @@ int main(int argc, char** argv) {
 	{
 		MC_PROFILE_SCOPE("propagation");
 		// using openmp algebra + standard operations + openmp system() function seems to reliably be the fastest
-		// doesn't seem to be compatible with using the mkl operations, which appear to require a vector_algebra
+		// doesn't seem to be compatible with using the mkl operations, which require a vector_space_algebra
+		// I think the absolute fastest would be to manually parallelize and have each thread use independent 
+		// (non parallelized) system functions and mkl operations
 		//using stepper_type = velocity_verlet< state_type >;
 		//using stepper_type = velocity_verlet< state_type, state_type, double, state_type, double, double, vector_space_algebra, mkl_operations >;
 		using stepper_type = velocity_verlet< state_type, state_type, double, state_type, double, double, openmp_range_algebra >;
@@ -80,7 +94,23 @@ int main(int argc, char** argv) {
 		const double startT = 0.0;
 		const double dt = 0.001;
 		const double endT = 1.0;
-		integrate_const(stepper, ho, std::make_pair(std::ref(ps), std::ref(vs)), startT, endT, dt);
+		MC_INFO("propagating...");
+		// strictly speaking, the only way to stop certain particles from propagating is to loop through the ensemble
+		// after each time step
+
+		// integrate/propagate
+		//integrate_const(stepper, ho, std::make_pair(std::ref(ps), std::ref(vs)), startT, endT, dt);
+		
+		// taking discrete steps is better, we can break out early if no particles are active
+		for (double t = startT; t < endT; t += dt) {
+			stepper.do_step(ho, std::make_pair(std::ref(ps), std::ref(vs)), t, dt);
+			// independent steps allow us to test for boundary conditions, lost molecules, etc.
+			// would be more efficient to do this in the system function!
+			// that can be done (in the observer is more natural), just requires breaking the const promise!
+			// HERE WE SHOULD TEST IF WE SHOULD BREAK OUT OF THE LOOP
+			// if (nActiveParticles == 0) { break; }
+		}
+			
 	}
 	MC_INFO("End ODEINT ensemble propagation test");
 	//-------------------------------------
