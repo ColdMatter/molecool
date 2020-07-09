@@ -49,8 +49,8 @@ namespace molecool {
 		int particles;					// number of particles
 		int dimensions;					// number of spatial dimensions
 		Particle particle;
-		std::vector<double> positions;	// organized by particle as [ x0, y0, z0, x1, y1, z1, ... ]
-		std::vector<double> velocities;	// organized by particle as [ vx0, vy0, vz0, vx1, vy1, vz1, ... ]
+		mutable std::vector<double> positions;	// organized by particle as [ x0, y0, z0, x1, y1, z1, ... ]
+		mutable std::vector<double> velocities;	// organized by particle as [ vx0, vy0, vz0, vx1, vy1, vz1, ... ]
 		std::vector< std::pair< Distribution, Distribution> > distributions;
 
 	};

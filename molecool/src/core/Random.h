@@ -73,7 +73,7 @@ namespace molecool {
         exponential,    // parameters are displacement, scale factor
         laplace,        // parameters are mean, scale factor
         cauchy,         // parameters are displacement, scale factor
-        rayleigh,       // parameters are displacement, scale fator
+        rayleigh,       // parameters are displacement, scale factor
         gumbel          // parameters are displacement, scale factor
     };
 
@@ -102,6 +102,8 @@ namespace molecool {
 
         // sample a single value from the distribution, will be relatively slow
         double sample(std::shared_ptr<RandomStream> sp);    
+
+        double getPeak() const;
 
     private:
 

@@ -59,6 +59,16 @@ namespace molecool {
 					mkl_domatcopy('R', 'T', dimensions, particles, 1, tempPositions.data(), particles, (double*)positions.data(), dimensions);
 					mkl_domatcopy('R', 'T', dimensions, particles, 1, tempVelocities.data(), particles, (double*)velocities.data(), dimensions);
 				}
+
+				// ensure the first particle has a state that is exactly from the center of the distributions
+				for (int i = 0; i < 2 * dimensions; ++i) {
+					if (i < dimensions) {
+						positions[i] = dists[i].first.getPeak();
+					}
+					else {
+						velocities[i - dimensions] = dists[i - dimensions].second.getPeak();
+					}
+				}
 		}
 		catch (...) {
 			MC_CORE_FATAL("Unable to create ensemble - exiting.");

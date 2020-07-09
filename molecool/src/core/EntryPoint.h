@@ -23,8 +23,9 @@ public:
 		for (int i = 0; i < nOscillators; i+=nDimensions) {
 			for (int j = 0; j < nDimensions; ++j) {
 				if (x[i+j] > 1.0) {
-					// this is naughty, breaking the const promise for efficiency purposes
 					MC_CORE_TRACE("particle {0} lost at ({1},{2},{3})", i, x[i], x[i + 1], x[i + 2]);
+					// this is naughty, breaking the const promise for efficiency purposes
+					//v[i + j] = 0.0;						// does this work if v is in a class and marked 'mutable'?
 					double* vv = (double*)&v[i];			// break the const promise!
 					*vv = 0.0;								// otherwise have to loop back through to test after each time step
 															// probably better to do this in the observer!
@@ -78,8 +79,6 @@ int main(int argc, char** argv) {
 	// 1e7 particles occupy ~500MB of heap memory (peak usage during construction is double that)
 	int nParticles = 100;
 	Ensemble ensemble(nParticles, Particle::CaF, dists);
-	std::vector<double>& ps = ensemble.getPositions();		// get reference to positions vector to do stuff
-	std::vector<double>& vs = ensemble.getVelocities();
 	harm_osc ho(0.1);
 	{
 		MC_PROFILE_SCOPE("propagation");
@@ -95,18 +94,16 @@ int main(int argc, char** argv) {
 		const double dt = 0.001;
 		const double endT = 1.0;
 		MC_INFO("propagating...");
-		// strictly speaking, the only way to stop certain particles from propagating is to loop through the ensemble
-		// after each time step
 
 		// integrate/propagate
 		//integrate_const(stepper, ho, std::make_pair(std::ref(ps), std::ref(vs)), startT, endT, dt);
 		
 		// taking discrete steps is better, we can break out early if no particles are active
 		for (double t = startT; t < endT; t += dt) {
-			stepper.do_step(ho, std::make_pair(std::ref(ps), std::ref(vs)), t, dt);
-			// independent steps allow us to test for boundary conditions, lost molecules, etc.
-			// would be more efficient to do this in the system function!
-			// that can be done (in the observer is more natural), just requires breaking the const promise!
+			stepper.do_step(ho, std::make_pair(std::ref(ensemble.getPositions()), std::ref(ensemble.getVelocities())), t, dt);
+			// independent steps allow us to test for boundary conditions, lost molecules [-> set a,v=0], etc.
+			// would be more efficient to do these checks in the system function!
+			// that can be done (or in the observer is more natural), just requires breaking the const promise!
 			// HERE WE SHOULD TEST IF WE SHOULD BREAK OUT OF THE LOOP
 			// if (nActiveParticles == 0) { break; }
 		}

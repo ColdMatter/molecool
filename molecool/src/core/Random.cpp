@@ -56,6 +56,26 @@ namespace molecool {
         }
     }
 
+    // return the position of the peak of the distribution
+    double Distribution::getPeak() const {
+        switch (m_shape) {
+        case Shape::flat:
+            return (m_p2 - m_p1) / 2;
+        case Shape::gaussian:
+            return m_p1;
+        case Shape::exponential:
+            return m_p1;
+        case Shape::laplace:
+            return m_p1;
+        case Shape::cauchy:
+            return m_p1;
+        case Shape::rayleigh:
+            return m_p1 + m_p2;
+        default:
+            return 0.0;
+        }
+    }
+
     // single-sample getter
     // this will be very slow in comparison to the array-fill standard method
     // but is provided for convenience
