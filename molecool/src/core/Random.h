@@ -38,6 +38,7 @@ Usage examples of ContinuousDistribution class:
 
 #include <mkl.h>
 #include <time.h>
+#include <memory>
 #include "Core.h"
 
 namespace molecool {

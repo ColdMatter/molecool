@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Core.h"
+#include "Ensemble.h"
+#include "Thruster.h"
 
 namespace molecool {
 
@@ -10,12 +12,13 @@ namespace molecool {
         virtual ~Simulation();
         void run();
 
-        // each Simulation should get an Environment (singleton), Ensemble, a Thruster, a Propagator, etc.
-        // do we need a vector of ensembles for different species? or allow multiple species to be added to an ensemble?
-        // Environment
-        // Ensemble ensemble();
-        // Thruster thruster();
-        // Propagator propagator();
+        // each Simulation should get an Environment (singleton), Ensemble, a Thruster (propagator), etc.
+        // Environment environment;
+  
+
+        Ensemble ensemble;
+        Thruster thruster;
+
     };
 
     // METHOD TO BE DEFINED IN CLIENT APPLICATION

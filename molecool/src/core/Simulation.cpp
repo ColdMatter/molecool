@@ -3,7 +3,9 @@
 
 namespace molecool {
     
-    Simulation::Simulation() {
+    Simulation::Simulation() 
+    : thruster(ensemble)
+    {
         MC_PROFILE_FUNCTION();
     }
 
@@ -13,8 +15,9 @@ namespace molecool {
     
     void Simulation::run() {
         MC_PROFILE_FUNCTION();
-        // this is where we should propagate the molecules
-        // for now, just wait for input from user, any key press will close the program
+        // ensemble.save("initials.txt");
+        thruster.propagate();
+        // ensemble.save("finals.txt");
         std::cout << "press any key to end" << std::endl;
         std::cin.get();
     }
