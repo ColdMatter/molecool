@@ -1,5 +1,7 @@
 #pragma once
 
+#define MC_DIMS 3
+
 namespace molecool {
 
     // engine version reporting.  Note - constexpr functions are always 'inline' 
