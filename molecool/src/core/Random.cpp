@@ -28,62 +28,77 @@ namespace molecool {
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-    Distribution::Distribution(Shape shape, double p1, double p2)
-        : m_shape(shape), m_p1(p1), m_p2(p2)
+    Dist::Dist()
+        : m_pdf(PDF::delta), m_p1(0.0), m_p2(0.0)
     {}
 
-    int Distribution::sample(std::shared_ptr<RandomStream> sp, int nValues, double* target) {
-        return sample(sp, nValues, target, m_p1, m_p2);
-    }
+    Dist::Dist(PDF pdf, double p1, double p2)
+        : m_pdf(pdf), m_p1(p1), m_p2(p2), m_pdfDefined(true)
+    {}
 
-    int Distribution::sample(std::shared_ptr<RandomStream> sp, int nValues, double* target, double p1, double p2) {
+    int Dist::sample(std::shared_ptr<RandomStream> sp, int nValues, std::vector<double>& target, int offset) const
+    {
+        // grow the target vector if needed
+        size_t minTargetSize = nValues + offset;
+        if (target.size() < minTargetSize) {
+            MC_CORE_WARN("Random number target vector too small, resizing");
+            target.resize(minTargetSize);
+        }
+
+        // fill with random numbers from stream
+        if (!m_pdfDefined) {
+            MC_CORE_WARN("Using default 'delta' distribution, all sample variates will be equal");
+        }
+        double* tarPtr = (double*)&target[offset];
         VSLStreamStatePtr rngStream = sp->getStream();
-        switch (m_shape) {
-        case Shape::flat:
-            return vdRngUniform(VSL_RNG_METHOD_UNIFORM_STD, rngStream, nValues, target, p1, p2);
-        case Shape::gaussian:
-            return vdRngGaussian(VSL_RNG_METHOD_GAUSSIAN_ICDF, rngStream, nValues, target, p1, p2);
-        case Shape::exponential:
-            return vdRngExponential(VSL_RNG_METHOD_EXPONENTIAL_ICDF, rngStream, nValues, target, p1, p2);
-        case Shape::laplace:
-            return vdRngLaplace(VSL_RNG_METHOD_LAPLACE_ICDF, rngStream, nValues, target, p1, p2);
-        case Shape::cauchy:
-            return vdRngCauchy(VSL_RNG_METHOD_CAUCHY_ICDF, rngStream, nValues, target, p1, p2);
-        case Shape::rayleigh:
-            return vdRngRayleigh(VSL_RNG_METHOD_RAYLEIGH_ICDF, rngStream, nValues, target, p1, p2);
+        switch (m_pdf) {
+        case PDF::delta:
+            std::fill_n(tarPtr, nValues, m_p1);
+            return EXIT_SUCCESS;
+        case PDF::flat:
+            return vdRngUniform(VSL_RNG_METHOD_UNIFORM_STD, rngStream, nValues, tarPtr, m_p1, m_p2);
+        case PDF::gaussian:
+            return vdRngGaussian(VSL_RNG_METHOD_GAUSSIAN_ICDF, rngStream, nValues, tarPtr, m_p1, m_p2);
+        case PDF::exponential:
+            return vdRngExponential(VSL_RNG_METHOD_EXPONENTIAL_ICDF, rngStream, nValues, tarPtr, m_p1, m_p2);
+        case PDF::laplace:
+            return vdRngLaplace(VSL_RNG_METHOD_LAPLACE_ICDF, rngStream, nValues, tarPtr, m_p1, m_p2);
+        case PDF::cauchy:
+            return vdRngCauchy(VSL_RNG_METHOD_CAUCHY_ICDF, rngStream, nValues, tarPtr, m_p1, m_p2);
+        case PDF::rayleigh:
+            return vdRngRayleigh(VSL_RNG_METHOD_RAYLEIGH_ICDF, rngStream, nValues, tarPtr, m_p1, m_p2);
         default:
             return -1;
         }
+
+    }
+
+    void Dist::changePdfParameters(double p1, double p2)
+    {
+        m_p1 = p1;
+        m_p2 = p2;
     }
 
     // return the position of the peak of the distribution
-    double Distribution::getPeak() const {
-        switch (m_shape) {
-        case Shape::flat:
+    double Dist::getPeak() const {
+        switch (m_pdf) {
+        case PDF::delta:
+            return m_p1;
+        case PDF::flat:
             return (m_p2 - m_p1) / 2;
-        case Shape::gaussian:
+        case PDF::gaussian:
             return m_p1;
-        case Shape::exponential:
+        case PDF::exponential:
             return m_p1;
-        case Shape::laplace:
+        case PDF::laplace:
             return m_p1;
-        case Shape::cauchy:
+        case PDF::cauchy:
             return m_p1;
-        case Shape::rayleigh:
+        case PDF::rayleigh:
             return m_p1 + m_p2;
         default:
             return 0.0;
         }
-    }
-
-    // single-sample getter
-    // this will be very slow in comparison to the array-fill standard method
-    // but is provided for convenience
-    double Distribution::sample(std::shared_ptr<RandomStream> sp) {
-        double result;
-        double* resPtr = &result;
-        sample(sp, 1, resPtr);
-        return result;
     }
 
 

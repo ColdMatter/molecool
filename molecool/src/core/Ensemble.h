@@ -8,14 +8,6 @@ namespace molecool {
 
 	enum class ParticleId { Rb, CaF, YbF};
 
-	// a 3-component cartesian vector
-	struct Vector {
-		Vector(double x = 0, double y = 0, double z = 0)
-			: x(x), y(y), z(z)
-		{}
-		double x, y, z;
-	};
-
 	// a particle (classical) state, used only to refer to elements of composite data structures in a reasonable way
 	// just holds references to position and velocity components of the parent structures
 	// let me re-iterate this, a State is only a collection of references for ease of testing/maniupulation
@@ -51,8 +43,7 @@ namespace molecool {
 	public:
 
 		Ensemble();
-		Ensemble(size_t nParticles, ParticleId pId, std::vector< std::pair< Distribution, Distribution> >& dists);
-		void addParticles(size_t nParticles, ParticleId pId, std::vector< std::pair< Distribution, Distribution> >& dists);
+		void addParticles(size_t nParticles, ParticleId pId, std::array< std::pair< PosDist, VelDist>, MC_DIMS >& dists);
 		inline size_t getPopulation() { return population; }
 		inline std::vector<double>& getPositions() { return positions; }
 		inline std::vector<double>& getVelocities() { return velocities; }

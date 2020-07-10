@@ -10,21 +10,13 @@ namespace molecool {
 		MC_CORE_INFO("Creating ensemble");
 	}
 
-	// create an ensemble and initialize particles
-	Ensemble::Ensemble(size_t nParticles, ParticleId pId, std::vector< std::pair< Distribution, Distribution> >& dists)
-	{
-		Ensemble();
-		addParticles(nParticles, pId, dists);
-	}
-
-	void Ensemble::addParticles(size_t nParticles, ParticleId pId, std::vector< std::pair< Distribution, Distribution> >& dists)
+	void Ensemble::addParticles(size_t nParticles, ParticleId pId, std::array< std::pair< PosDist, VelDist>, MC_DIMS >& dists)
 	{
 		MC_PROFILE_FUNCTION();
 		MC_CORE_INFO("Adding {0} particles of type {1}", nParticles, pId);
 		try {
-				size_t nDims = dists.size();					// number of spatial dimensions provided by user via distributions list
-				size_t nDists = 2 * nDims;
-				size_t nRandoms = nParticles * MC_DIMS;			// DON'T use nDims as multiplier here or unspecified components remain uninitialized		
+				size_t nDists = 2 * MC_DIMS;
+				size_t nRandoms = nParticles * MC_DIMS;					
 				std::vector<double> tempPositions(nRandoms);
 				std::vector<double> tempVelocities(nRandoms);	
 				
@@ -46,17 +38,17 @@ namespace molecool {
 					}
 					#pragma omp parallel for
 					for (int i = 0; i < nDists; ++i) {
-						if (i < nDims) {
-							// positions, enforcing first particle comes from distribution center(s)
+						if (i < MC_DIMS) {
+							dists[i].first.sample(sps[i], nParticles, tempPositions, i * nParticles);
+							// enforce first particle comes from distribution center(s):
 							double* posPtr = (double*)&tempPositions[i * nParticles];
-							dists[i].first.sample(sps[i], nParticles, posPtr);
 							posPtr[0] = dists[i].first.getPeak();	 
 						}
 						else {
-							// velocities, enforcing first particle comes from distribution center(s)
-							int in = i - nDims;
+							int in = i - MC_DIMS;
+							dists[in].second.sample(sps[i], nParticles, tempVelocities, in * nParticles);
+							// enforce first particle comes from distribution center(s):
 							double* velPtr = (double*)&tempVelocities[in * nParticles];
-							dists[in].second.sample(sps[i], nParticles, (double*)(&tempVelocities[in * nParticles]));
 							velPtr[0] = dists[in].second.getPeak();
 						}
 					}
@@ -72,6 +64,7 @@ namespace molecool {
 					double* velPtr = (double*)velocities.data() + population * MC_DIMS;
 					mkl_domatcopy('R', 'T', MC_DIMS, nParticles, 1, tempPositions.data(), nParticles, posPtr, MC_DIMS);
 					mkl_domatcopy('R', 'T', MC_DIMS, nParticles, 1, tempVelocities.data(), nParticles, velPtr, MC_DIMS);
+					int d = 2;
 				}
 		}
 		catch (...) {
