@@ -11,7 +11,9 @@ namespace molecool {
 		double m_gam;
 
 	public:
+		
 		harm_osc(double gam) : m_gam(gam) { }
+		
 		void operator() (state_type const& x, state_type const& v, state_type& a, double t)
 		{
 			MC_PROFILE_FUNCTION();
@@ -39,18 +41,20 @@ namespace molecool {
 		}
 	};
 
-    
+    // a functor that knows how to calculate accelerations for particles in the simulation
     class Thruster
     {
 
     public:
         Thruster(Ensemble& ens);
-		void propagate();
+
+		// odeint system function
+		void operator() (state_type const& x, state_type const& v, state_type& a, double t);
 
     private:
 
 		Ensemble& ensemble;
-		harm_osc ho;
+		double m_gam;
     };
 
 }

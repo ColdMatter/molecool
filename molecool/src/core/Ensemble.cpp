@@ -64,11 +64,10 @@ namespace molecool {
 					double* velPtr = (double*)velocities.data() + population * MC_DIMS;
 					mkl_domatcopy('R', 'T', MC_DIMS, nParticles, 1, tempPositions.data(), nParticles, posPtr, MC_DIMS);
 					mkl_domatcopy('R', 'T', MC_DIMS, nParticles, 1, tempVelocities.data(), nParticles, velPtr, MC_DIMS);
-					int d = 2;
 				}
 		}
 		catch (...) {
-			MC_CORE_ERROR("Unable to add particles, exiting...");
+			MC_CORE_FATAL("Unable to add particles, exiting...");
 			exit(-1);
 		}
 
