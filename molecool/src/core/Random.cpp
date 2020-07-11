@@ -49,7 +49,7 @@ namespace molecool {
         if (!m_pdfDefined) {
             MC_CORE_WARN("Using default 'delta' distribution, all sample variates will be equal");
         }
-        double* tarPtr = (double*)&target[offset];
+        double* tarPtr = &target[offset];
         VSLStreamStatePtr rngStream = sp->getStream();
         switch (m_pdf) {
         case PDF::delta:

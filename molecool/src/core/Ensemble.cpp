@@ -16,15 +16,17 @@ namespace molecool {
 		MC_CORE_INFO("Adding {0} particles of type {1}", nParticles, pId);
 		try {
 				size_t nDists = 2 * MC_DIMS;
-				size_t nRandoms = nParticles * MC_DIMS;					
-				std::vector<double> tempPositions(nRandoms);
-				std::vector<double> tempVelocities(nRandoms);	
+				size_t nRandoms = nParticles * MC_DIMS;	
+				std::vector<double> tempPos(nRandoms);
+				std::vector<double> tempVel(nRandoms);
 				
 				{
 					MC_PROFILE_SCOPE("ensemble memory allocation");
-					positions.resize(positions.size() + nRandoms);
-					velocities.resize(velocities.size() + nRandoms);
+					pos.resize(pos.size() + nRandoms);
+					vel.resize(pos.size());
+
 					particleIds.resize(particleIds.size() + nParticles);
+					actives.resize(actives.size() + nParticles);
 				}
 				
 				{
@@ -39,16 +41,16 @@ namespace molecool {
 					#pragma omp parallel for
 					for (int i = 0; i < nDists; ++i) {
 						if (i < MC_DIMS) {
-							dists[i].first.sample(sps[i], nParticles, tempPositions, i * nParticles);
+							dists[i].first.sample(sps[i], nParticles, tempPos, i * nParticles);
 							// enforce first particle comes from distribution center(s):
-							double* posPtr = (double*)&tempPositions[i * nParticles];
+							double* posPtr = (double*)&tempPos[i * nParticles];
 							posPtr[0] = dists[i].first.getPeak();	 
 						}
 						else {
 							int in = i - MC_DIMS;
-							dists[in].second.sample(sps[i], nParticles, tempVelocities, in * nParticles);
+							dists[in].second.sample(sps[i], nParticles, tempVel, in * nParticles);
 							// enforce first particle comes from distribution center(s):
-							double* velPtr = (double*)&tempVelocities[in * nParticles];
+							double* velPtr = (double*)&tempVel[in * nParticles];
 							velPtr[0] = dists[in].second.getPeak();
 						}
 					}
@@ -60,10 +62,10 @@ namespace molecool {
 				// transpose the temporary target vectors into class member vectors
 				{
 					MC_PROFILE_SCOPE("ensemble states initialization"); 
-					double* posPtr = (double*)positions.data() + population * MC_DIMS;
-					double* velPtr = (double*)velocities.data() + population * MC_DIMS;
-					mkl_domatcopy('R', 'T', MC_DIMS, nParticles, 1, tempPositions.data(), nParticles, posPtr, MC_DIMS);
-					mkl_domatcopy('R', 'T', MC_DIMS, nParticles, 1, tempVelocities.data(), nParticles, velPtr, MC_DIMS);
+					double* posPtr = (double*)pos.data() + population * MC_DIMS;
+					double* velPtr = (double*)vel.data() + population * MC_DIMS;
+					mkl_domatcopy('R', 'T', MC_DIMS, nParticles, 1, tempPos.data(), nParticles, posPtr, MC_DIMS);
+					mkl_domatcopy('R', 'T', MC_DIMS, nParticles, 1, tempVel.data(), nParticles, velPtr, MC_DIMS);
 				}
 		}
 		catch (...) {
@@ -71,11 +73,30 @@ namespace molecool {
 			exit(-1);
 		}
 
-		// new particles have successfully been added to the ensemble
+		// new particles have successfully been added to the ensemble, record their ids and make them active
 		for (int i = population; i < population + nParticles; ++i) {
 			particleIds[i] = pId;
+			actives[i] = true;
 		}
 		population += nParticles;
+		active += nParticles;
+	}
+
+	bool Ensemble::isParticleActive(int i) {
+		return actives.at(i);
+	}
+
+	void Ensemble::deactivateParticle(int i) {
+		actives.at(i) = false;
+		active--;
+	}
+
+	int Ensemble::getActivePopulation() {
+		return active;
+	}
+
+	double Ensemble::getParticleMass(int i) {
+		return 1;
 	}
 
 }

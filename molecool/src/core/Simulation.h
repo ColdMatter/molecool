@@ -11,6 +11,7 @@ namespace molecool {
         Simulation();
         virtual ~Simulation();
         void run();
+        void propagate();
 
         // each Simulation should get an Environment (singleton), Ensemble, a Thruster (propagator), etc.
         // Environment environment;

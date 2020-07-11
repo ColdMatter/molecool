@@ -3,35 +3,41 @@
 
 namespace molecool {
 
-    Thruster::Thruster(Ensemble& ens)
-        : ensemble(ens), m_gam(0.1)
-    {}
+	Thruster::Thruster(Ensemble& ens)
+		: ensemble(ens)
+	{}
 
+	// the system function (functor) has lots of side effects, this is probably unavoidable
 	void Thruster::operator() (state_type const& x, state_type const& v, state_type& a, double t)
 	{
 		MC_PROFILE_FUNCTION();
-		int nOscillators = (int)x.size() / MC_DIMS;
+		int nParticles = (int)x.size() / MC_DIMS;
 		#pragma omp parallel for
-		for (int i = 0; i < nOscillators; i += MC_DIMS) {
-			// if (!particleIsActive) { continue; }			// acceleration unchanged unless particle is currently active
-			State st((double*)&x[i], (double*)&v[i]);		// extract state for testing barrier conditions etc.
-			//bool filterParticle = filterTests(st);		// test vector of filters to see if particle should be stopped
-			for (int j = 0; j < MC_DIMS; ++j) {
-				if (false) { // (filterParticle) {
-					MC_CORE_TRACE("particle {0} lost at ({1},{2},{3})", i, x[i], x[i + 1], x[i + 2]);
-					// this is naughty, breaking the const promise for efficiency purposes (to avoid scanning through after timestep)
-					double* vv = (double*)&v[i];			// break the const promise!
-					*vv = 0.0;								// set velocity to zero
-					a[i + j] = 0.0;							// and acceleration
-				}
-				else {
-					// accumulate accelerations here
-					a[i + j] = -x[i + j] - m_gam * v[i + j];
-				}
-
+		for (int i = 0; i < nParticles; ++i) {
+			ParticleProxy p(ensemble, i);
+			int j = MC_DIMS * i;						// particle index in vectors
+			if (i == 0) { printf("x: (%.6f, %.6f, %.6f), v: (%.6f, %.6f, %.6f), a: (%.6f, %.6f, %.6f)\n", x[j], x[j + 1], x[j + 2], v[j], v[j + 1], v[j + 2], a[j], a[j + 1], a[j + 2]); }
+			if (!p.isActive()) { 
+				// particle is inactive, hold it at a fixed position (breaking the const promise by directly setting velocity components)
+				a[j] = a[j + 1] = a[j + 2] = 0.0;
+				p.setVel(0, 0, 0);		// or double* vv = (double*)&v[j]; vv[0] = vv[1] = vv[2] = 0.0;
 			}
-		}
-	}
+			else if (i == 0 && t > 0.5) // applyFilterTests( Particle(ensemble, i) );	// extract particle for testing barrier conditions etc.)
+			{
+				MC_CORE_TRACE("particle {0} lost at ({1},{2},{3})", i, p.getX(), p.getY(), p.getZ());
+				p.deactivate();
+			}
+			else 
+			{
+				double m = ensemble.getParticleMass(i);	// better to include more information in State? like and extended Particle class?
+				// Vector f = accumulateForces(st);
+				for (int k = 0; k < MC_DIMS; ++k) {
+					// a[j + k] = f[k] / m;
+					a[j + k] = -x[j + k] - 0.1 * v[j + k];	// 'manual' damped harmonic oscillator
+				}
+			}
+		} // end for all particles
+	} // end function
 
 
 }

@@ -17,7 +17,17 @@ namespace molecool {
         MC_PROFILE_FUNCTION();
         
         // ensemble.save("initials.txt");
+        propagate();
         
+        // ensemble.save("finals.txt");
+        std::cout << "press any key to end" << std::endl;
+        std::cin.get();
+    }
+
+    void Simulation::propagate() {
+        MC_PROFILE_FUNCTION();
+        MC_CORE_INFO("propogating {0} particles...", ensemble.getActivePopulation());
+
         using namespace boost::numeric::odeint;
         // using openmp algebra + standard operations + openmp system() function seems to reliably be the fastest
         // doesn't seem to be compatible with using the mkl operations, which require a vector_space_algebra
@@ -30,20 +40,15 @@ namespace molecool {
         const double startT = 0.0;
         const double dt = 0.001;
         const double endT = 1.0;
-        // taking discrete steps is better, we can break out early if no particles are active
-        //integrate_const(stepper, ho, std::make_pair(std::ref(ensemble.getPositions()), std::ref(ensemble.getVelocities())), startT, endT, dt);
+
+        // taking discrete steps is better than using integrate(), we can break out early if no particles are active
+        //integrate_const(stepper, thruster, std::make_pair(std::ref(ensemble.positions), std::ref(ensemble.velocities)), startT, endT, dt);
         for (double t = startT; t < endT; t += dt) {
-            stepper.do_step(thruster, std::make_pair(std::ref(ensemble.getPositions()), std::ref(ensemble.getVelocities())), t, dt);
-            // independent steps allow us to test for boundary conditions, lost molecules [-> set a=0,v=0], etc.
-            // but it would be more efficient to do these checks in the system function!
-            // that can be done (or in the observer is more natural), just requires breaking the const promise!
-            // HERE WE SHOULD TEST IF WE SHOULD BREAK OUT OF THE LOOP
-            // if (nActiveParticles == 0) { break; }
+            stepper.do_step(std::ref(thruster), std::make_pair(std::ref(ensemble.pos), std::ref(ensemble.vel)), t, dt);
+            if (ensemble.getActivePopulation() == 0) { break; }
         }
-        
-        // ensemble.save("finals.txt");
-        std::cout << "press any key to end" << std::endl;
-        std::cin.get();
+
+        MC_CORE_INFO("propagation complete, {0} particles still active", ensemble.getActivePopulation());
     }
 
     void Simulation::addParticles(size_t n, ParticleId p, PosDist xDis, VelDist vxDis, PosDist yDis, VelDist vyDis, PosDist zDis, VelDist vzDis) {

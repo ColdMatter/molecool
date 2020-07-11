@@ -8,6 +8,7 @@ namespace molecool {
 
 	enum class ParticleId { Rb, CaF, YbF};
 
+
 	// a particle (classical) state, used only to refer to elements of composite data structures in a reasonable way
 	// just holds references to position and velocity components of the parent structures
 	// let me re-iterate this, a State is only a collection of references for ease of testing/maniupulation
@@ -45,16 +46,65 @@ namespace molecool {
 		Ensemble();
 		void addParticles(size_t nParticles, ParticleId pId, std::array< std::pair< PosDist, VelDist>, MC_DIMS >& dists);
 		inline size_t getPopulation() { return population; }
-		inline std::vector<double>& getPositions() { return positions; }
-		inline std::vector<double>& getVelocities() { return velocities; }
-		inline State getState(int i) { return State(&positions.at(i * MC_DIMS), &velocities.at(i * MC_DIMS)); }
+		inline std::vector<double>& getPos() { return pos; }
+		inline std::vector<double>& getVel() { return vel; }
+		
+		State getState(int i) { return State(&pos.at(i * MC_DIMS), &vel.at(i * MC_DIMS)); }
+		
+		// check if the ith particle is currently active
+		bool isParticleActive(int i);
+
+		double getParticleMass(int i);
+
+		// deactivate a particle
+		void deactivateParticle(int i);
+
+		// request the number of particles that are still active
+		int getActivePopulation();
+
+		// ensemble (classical) state vectors organized by particle as [ x0, y0, z0, x1, y1, z1, ... ] for particle N = 0, 1, ... 
+		std::vector<double> pos, vel;
 	
 	private:
 		size_t population;						// number of particles in the ensemble
-		std::vector<double> positions;			// organized by particle as [ x0, y0, z0, x1, y1, z1, ... ]
-		std::vector<double> velocities;			// organized by particle as [ vx0, vy0, vz0, vx1, vy1, vz1, ... ]
-		std::vector<ParticleId> particleIds;	// list of particle ids
 
+		std::vector<ParticleId> particleIds;	// list of particle ids
+		std::vector<bool> actives;				// vector of active flags for participating particles
+		size_t active = 0;						// how many molecules are active
+
+	};
+
+	// a lightweight 'Particle' object for accessing particles in the ensemble as if they were 
+	// structured as an overall vector of Particle objects
+	// this is useful for doing tests on individual elements, priting, etc.
+	struct ParticleProxy {
+		ParticleProxy(Ensemble& ensemble, int index)
+			: in(index), ens(ensemble)
+		{}
+
+		int in;
+		Ensemble& ens;
+
+		double getX() { return ens.pos[in * MC_DIMS]; }
+		double getY() { return ens.pos[in * MC_DIMS + 1]; }
+		double getZ() { return ens.pos[in * MC_DIMS + 2]; }
+		double getVx() { return ens.vel[in * MC_DIMS]; }
+		double getVy() { return ens.vel[in * MC_DIMS + 1]; }
+		bool isActive() { return ens.isParticleActive(in); }
+		void deactivate() { ens.deactivateParticle(in); }
+		double getMass() { return ens.getParticleMass(in); }
+		void setPos(double x, double y, double z) {
+			int i = in * MC_DIMS;
+			ens.pos[  i  ] = x;
+			ens.pos[i + 1] = y;
+			ens.pos[i + 2] = z;
+		}
+		void setVel(double vx, double vy, double vz) {
+			int i = in * MC_DIMS;
+			ens.vel[  i  ] = vx;
+			ens.vel[i + 1] = vy;
+			ens.vel[i + 2] = vz;
+		}
 	};
 
 }
