@@ -85,6 +85,7 @@ namespace molecool {
 		int in;
 		Ensemble& ens;
 
+		int getIndex() { return in; }
 		double getX() { return ens.pos[in * MC_DIMS]; }
 		double getY() { return ens.pos[in * MC_DIMS + 1]; }
 		double getZ() { return ens.pos[in * MC_DIMS + 2]; }
