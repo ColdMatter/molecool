@@ -14,7 +14,7 @@ namespace molecool {
 		Sandbox() {
 
 			// add particles to the simulation according to the given initial distributions
-			int nParticles = 1'000'000;
+			int nParticles = 100;
 			PosDist xDist = Dist(PDF::gaussian, 0.0, 1.0);
 			VelDist vxDist = Dist(PDF::gaussian, 0.0, 1.0);
 			PosDist yDist = Dist(PDF::gaussian, 0.0, 1.0);
@@ -38,7 +38,7 @@ namespace molecool {
 				return Force(0, -m * g, 0);
 			};
 			addForce(gravity);
-
+			
 			// add damped simple harmonic oscillator force
 			auto sho3d = [](ParticleProxy pp, double t) -> Force {
 				const double k = 1.0;		// spring constant
@@ -46,6 +46,14 @@ namespace molecool {
 				return -k * pp.getPos() - gam * pp.getVel();
 			};
 			addForce(sho3d);
+			
+			// add an observer to track the trajectory of a particle (to the console)
+			auto trajTracker = [](Ensemble& e, double t) -> void {
+				int n = 1;		// particle number 0..nParticles-1
+				ParticleProxy p = ParticleProxy(e, n);
+				printf("particle %d at (%.3f, %.3f, %.3f) at t=%.3f \n", n, p.getX(), p.getY(), p.getZ(), t);
+			};
+			addObserver(trajTracker);
 
 			// that's all there is to do!
 		

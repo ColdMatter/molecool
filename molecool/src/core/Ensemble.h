@@ -7,6 +7,9 @@
 
 namespace molecool {
 
+	// state type for odeint propagation
+	using state_type = std::vector<double>;
+
 	enum class ParticleId { Rb, CaF, YbF};
 
 
@@ -16,7 +19,7 @@ namespace molecool {
 
 		Ensemble();
 		void addParticles(int nParticles, ParticleId pId, std::array< std::pair< PosDist, VelDist>, MC_DIMS >& dists);
-		inline size_t getPopulation() { return population; }
+		inline int getPopulation() const { return population; }
 		inline std::vector<double>& getPos() { return pos; }
 		inline std::vector<double>& getVel() { return vel; }
 		
@@ -52,18 +55,18 @@ namespace molecool {
 		int n;				// particle number/id 0..nParticles
 		Ensemble& ens;
 
-		int getIndex() { return n; }
-		double getX() { return ens.pos[n * MC_DIMS]; }
-		double getY() { return ens.pos[n * MC_DIMS + 1]; }
-		double getZ() { return ens.pos[n * MC_DIMS + 2]; }
-		double getVx() { return ens.vel[n * MC_DIMS]; }
-		double getVy() { return ens.vel[n * MC_DIMS + 1]; }
-		double getVz() { return ens.vel[n * MC_DIMS + 2]; }
-		Position getPos() { return Position( getX(), getY(), getZ() ); }
-		Velocity getVel() { return Position( getVx(), getVy(), getVz() ); }
-		bool isActive() { return ens.isParticleActive(n); }
+		int getIndex() const { return n; }
+		double getX() const { return ens.pos[n * MC_DIMS]; }
+		double getY() const { return ens.pos[n * MC_DIMS + 1]; }
+		double getZ() const { return ens.pos[n * MC_DIMS + 2]; }
+		double getVx() const { return ens.vel[n * MC_DIMS]; }
+		double getVy() const { return ens.vel[n * MC_DIMS + 1]; }
+		double getVz() const { return ens.vel[n * MC_DIMS + 2]; }
+		Position getPos() const { return Position( getX(), getY(), getZ() ); }
+		Velocity getVel() const { return Position( getVx(), getVy(), getVz() ); }
+		bool isActive() const { return ens.isParticleActive(n); }
 		void deactivate() { ens.deactivateParticle(n); }
-		double getMass() { return ens.getParticleMass(n); }
+		double getMass() const { return ens.getParticleMass(n); }
 		void setPos(double x, double y, double z) {
 			int i = n * MC_DIMS;
 			ens.pos[  i  ] = x;

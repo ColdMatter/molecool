@@ -4,7 +4,7 @@
 namespace molecool {
     
     Simulation::Simulation() 
-    : thruster(ensemble)
+    : thruster(ensemble), watcher(ensemble)
     {
         MC_PROFILE_FUNCTION();
     }
@@ -40,11 +40,16 @@ namespace molecool {
         const double startT = 0.0;
         const double dt = 0.001;
         const double endT = 1.0;
+        double t = startT;
 
         // taking discrete steps is better than using integrate(), we can break out early if no particles are active
         //integrate_const(stepper, thruster, std::make_pair(std::ref(ensemble.positions), std::ref(ensemble.velocities)), startT, endT, dt);
-        for (double t = startT; t < endT; t += dt) {
+        watcher.deploy(t);
+        for (double t = startT; t <= endT; t += dt) {
+            // advance classical states one timestep
             stepper.do_step(std::ref(thruster), std::make_pair(std::ref(ensemble.pos), std::ref(ensemble.vel)), t, dt);
+            // deploy watcher object, tracking trajectories, population statistics, etc.
+            watcher.deploy(t);
             // gather statistics for particle lifetime (number of active particles vs time, etc.)
             if (ensemble.getActivePopulation() == 0) { break; }
         }
@@ -67,6 +72,10 @@ namespace molecool {
 
     void Simulation::addForce(ForceFunction ff) {
         thruster.addForce(ff);
+    }
+
+    void Simulation::addObserver(Observer obs) {
+        watcher.addObserver(obs);
     }
 
 }

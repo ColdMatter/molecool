@@ -3,6 +3,7 @@
 #include "Core.h"
 #include "Ensemble.h"
 #include "Thruster.h"
+#include "Watcher.h"
 
 namespace molecool {
 
@@ -16,14 +17,15 @@ namespace molecool {
         // each Simulation should get an Environment (singleton), Ensemble, a Thruster (propagator), etc.
         // Environment environment;
 
-        // helper method to add particles to the ensemble
-        // omitted distributions will result in that dimension being all 0.0s
+        // helper methods for hiding class structure from user
         void addParticles(int n, ParticleId p, PosDist xDis = Dist(), VelDist vxDis = Dist(), PosDist yDis = Dist(), VelDist vyDis = Dist(), PosDist zDis = Dist(), VelDist vzDis = Dist());
         void addFilter(FilterFunction ff);
         void addForce(ForceFunction ff);
+        void addObserver(Observer obs);
 
         Ensemble ensemble;
         Thruster thruster;
+        Watcher watcher;
 
     };
 

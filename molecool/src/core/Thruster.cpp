@@ -35,7 +35,7 @@ namespace molecool {
 				Acceleration acc = getTotalForce(p, t) / p.getMass();
 				a[j] = acc.x;
 				a[j + 1] = acc.y;
-				a[j + 2] = acc.y;
+				a[j + 2] = acc.z;
 			}
 		} // end for all particles
 	} // end function

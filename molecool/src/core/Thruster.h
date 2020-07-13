@@ -6,7 +6,6 @@
 
 namespace molecool {
 
-	using state_type = std::vector<double>;
     using FilterFunction = std::function< bool(ParticleProxy /*particle*/, double /*t*/) >;
     using ForceFunction = std::function< Force(ParticleProxy /*particle*/, double /*t*/) >;
 
@@ -18,7 +17,7 @@ namespace molecool {
     public:
         Thruster(Ensemble& ens);
 
-		// odeint system function
+		// odeint system function, signature is specific to 2nd order system for velocity-verlet stepper
 		void operator() (state_type const& x, state_type const& v, state_type& a, double t);
 
         void addFilter(FilterFunction f);
@@ -39,7 +38,6 @@ namespace molecool {
 
         // get sum of all acting forces
         inline Force getTotalForce(ParticleProxy pp, double t);
-
 
     };
 
