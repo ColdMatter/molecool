@@ -1,7 +1,7 @@
 #pragma once
 
 #define MC_PROFILE 1			// enable/disable global profiling/timers (statistics outputs enabled)
-#define MC_PROFILE_VERBOSE 1	// enable/disable detailed profile .json output (along with statistics)
+#define MC_PROFILE_VERBOSE 0	// enable/disable detailed profile .json output (along with statistics)
 
 #if MC_PROFILE
 // Resolve which function signature macro will be used. Note that this only

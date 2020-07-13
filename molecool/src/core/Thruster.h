@@ -2,11 +2,13 @@
 
 #include "mcpch.h"
 #include "Ensemble.h"
+#include "Vector.h"
 
 namespace molecool {
 
 	using state_type = std::vector<double>;
-    using Filter = std::function<bool(ParticleProxy /*particle*/,double /*t*/)>;
+    using FilterFunction = std::function< bool(ParticleProxy /*particle*/, double /*t*/) >;
+    using ForceFunction = std::function< Force(ParticleProxy /*particle*/, double /*t*/) >;
 
 
     // a functor that knows how to calculate accelerations for particles in the simulation
@@ -19,17 +21,25 @@ namespace molecool {
 		// odeint system function
 		void operator() (state_type const& x, state_type const& v, state_type& a, double t);
 
-        void registerFilter(Filter fil);
+        void addFilter(FilterFunction f);
+        void addForce(ForceFunction f);
 
     private:
 
 		Ensemble& ensemble;
 
         // a collection of filter functions that return true if a particle should be stopped
-        std::vector<Filter> filters;
+        std::vector<FilterFunction> filters;
+
+        // a collection of force functions that apply forces based on position, velocity, etc.
+        std::vector<ForceFunction> forces;
 
         // apply all filter tests
-        bool filter(ParticleProxy pp, double t);
+        inline bool filter(ParticleProxy pp, double t);
+
+        // get sum of all acting forces
+        inline Force getTotalForce(ParticleProxy pp, double t);
+
 
     };
 

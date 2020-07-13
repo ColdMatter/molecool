@@ -1,6 +1,6 @@
 #pragma once
-#include "Core.h"
 #include "mcpch.h"
+#include "Core.h"
 #include "lua.h"
 
 
@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
 	Log::init();
 	MC_CORE_INFO("Welcome to the MOLECOOL engine v{0}", getEngineVersion());
 
-	MC_CORE_INFO("Hardware check: {0} threads available", omp_get_max_threads());
+	MC_CORE_TRACE("Hardware check: {0} threads available", omp_get_max_threads());
 	omp_set_dynamic(0);
 	//omp_set_num_threads(3);	// uncomment or adjust to compare timing with different thread counts
 

@@ -18,7 +18,9 @@ namespace molecool {
 
         // helper method to add particles to the ensemble
         // omitted distributions will result in that dimension being all 0.0s
-        void addParticles(size_t n, ParticleId p, PosDist xDis = Dist(), VelDist vxDis = Dist(), PosDist yDis = Dist(), VelDist vyDis = Dist(), PosDist zDis = Dist(), VelDist vzDis = Dist());
+        void addParticles(int n, ParticleId p, PosDist xDis = Dist(), VelDist vxDis = Dist(), PosDist yDis = Dist(), VelDist vyDis = Dist(), PosDist zDis = Dist(), VelDist vzDis = Dist());
+        void addFilter(FilterFunction ff);
+        void addForce(ForceFunction ff);
 
         Ensemble ensemble;
         Thruster thruster;

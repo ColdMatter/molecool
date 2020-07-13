@@ -7,13 +7,13 @@ namespace molecool {
 	Ensemble::Ensemble() 
 		: population(0)
 	{
-		MC_CORE_INFO("Creating ensemble");
+		MC_CORE_TRACE("Creating ensemble");
 	}
 
-	void Ensemble::addParticles(size_t nParticles, ParticleId pId, std::array< std::pair< PosDist, VelDist>, MC_DIMS >& dists)
+	void Ensemble::addParticles(int nParticles, ParticleId pId, std::array< std::pair< PosDist, VelDist>, MC_DIMS >& dists)
 	{
 		MC_PROFILE_FUNCTION();
-		MC_CORE_INFO("Adding {0} particles of type {1}", nParticles, pId);
+		MC_CORE_TRACE("Adding {0} particles of type {1}", nParticles, pId);
 		try {
 				size_t nDists = 2 * MC_DIMS;
 				size_t nRandoms = nParticles * MC_DIMS;	
