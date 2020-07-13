@@ -24,6 +24,11 @@ namespace molecool {
 	using Acceleration = Vector;
 	using Force = Vector;
 
+	Vector operator*(double d, Vector v);
+	Vector operator*(Vector v, double d);
+
 }
+
+
 
 

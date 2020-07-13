@@ -57,11 +57,13 @@ namespace molecool {
 	}
 
 	// define multiplication for scalar on the right of the vector, i.e. vec * d
+	// note: not a class/struct member function
 	Vector operator*(Vector v, double d) {
 		return v *= d;
 	}
 
 	// define multiplication for scalar on the left of the vector, i.e. d * vec
+	// note: not a class/struct member function
 	Vector operator*(double d, Vector v) {
 		return v *= d;
 	}

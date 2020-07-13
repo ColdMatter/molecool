@@ -59,6 +59,8 @@ namespace molecool {
 		double getVx() { return ens.vel[n * MC_DIMS]; }
 		double getVy() { return ens.vel[n * MC_DIMS + 1]; }
 		double getVz() { return ens.vel[n * MC_DIMS + 2]; }
+		Position getPos() { return Position( getX(), getY(), getZ() ); }
+		Velocity getVel() { return Position( getVx(), getVy(), getVz() ); }
 		bool isActive() { return ens.isParticleActive(n); }
 		void deactivate() { ens.deactivateParticle(n); }
 		double getMass() { return ens.getParticleMass(n); }

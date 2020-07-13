@@ -41,12 +41,9 @@ namespace molecool {
 
 			// add damped simple harmonic oscillator force
 			auto sho3d = [](ParticleProxy pp, double t) -> Force {
-				double k = 1.0;			// spring constant
-				double gam = 0.1;		// damping constant
-				double fx = -k * pp.getX() - gam * pp.getVx();
-				double fy = -k * pp.getY() - gam * pp.getVy();
-				double fz = -k * pp.getZ() - gam * pp.getVz();
-				return Force(fx, fy, fz);
+				const double k = 1.0;		// spring constant
+				const double gam = 0.1;		// damping constant
+				return -k * pp.getPos() - gam * pp.getVel();
 			};
 			addForce(sho3d);
 
