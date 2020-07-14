@@ -20,20 +20,18 @@ namespace molecool {
 		Ensemble();
 		void addParticles(int nParticles, ParticleId pId, std::array< std::pair< PosDist, VelDist>, MC_DIMS >& dists);
 		inline int getPopulation() const { return population; }
-		inline std::vector<double>& getPos() { return pos; }
-		inline std::vector<double>& getVel() { return vel; }
+		inline int getActivePopulation() const { return active; }
+		inline state_type& getPos() { return pos; }
+		inline state_type& getVel() { return vel; }
 		
 		// methods for manipulating or getting information about individual "particles"
-		// prefer access using ParticleProxy instead
-		bool isParticleActive(int i);
-		double getParticleMass(int i);
+		// prefer access using ParticleProxy instead for readability
+		inline bool isParticleActive(int i) const { return actives.at(i); }
+		inline double getParticleMass(int i) const { return 1; }
 		void deactivateParticle(int i);
 
-		// request the number of particles that are still active
-		int getActivePopulation();
-
 		// ensemble (classical) state vectors organized by particle as [ x0, y0, z0, x1, y1, z1, ... ] for particle N = 0, 1, ... 
-		std::vector<double> pos, vel;
+		state_type pos, vel;
 	
 	private:
 		int population = 0;					// number of particles in the ensemble
@@ -49,32 +47,31 @@ namespace molecool {
 	// this is useful for doing tests on individual elements, priting, etc.
 	struct ParticleProxy {
 		ParticleProxy(Ensemble& ensemble, int index)
-			: n(index), ens(ensemble)
+			: n(index), i(n * MC_DIMS), ens(ensemble)
 		{}
 
-		int n;				// particle number/id 0..nParticles
+		const int n;				// particle number/id 0..nParticles
+		const int i;				// index in various vectors
 		Ensemble& ens;
 
 		int getIndex() const { return n; }
-		double getX() const { return ens.pos[n * MC_DIMS]; }
-		double getY() const { return ens.pos[n * MC_DIMS + 1]; }
-		double getZ() const { return ens.pos[n * MC_DIMS + 2]; }
-		double getVx() const { return ens.vel[n * MC_DIMS]; }
-		double getVy() const { return ens.vel[n * MC_DIMS + 1]; }
-		double getVz() const { return ens.vel[n * MC_DIMS + 2]; }
+		double& getX() const { return ens.pos[  i  ]; }
+		double& getY() const { return ens.pos[i + 1]; }
+		double& getZ() const { return ens.pos[i + 2]; }
+		double& getVx() const { return ens.vel[  i  ]; }
+		double& getVy() const { return ens.vel[i + 1]; }
+		double& getVz() const { return ens.vel[i + 2]; }
 		Position getPos() const { return Position( getX(), getY(), getZ() ); }
 		Velocity getVel() const { return Position( getVx(), getVy(), getVz() ); }
 		bool isActive() const { return ens.isParticleActive(n); }
-		void deactivate() { ens.deactivateParticle(n); }
+		void deactivate() const { ens.deactivateParticle(n); }
 		double getMass() const { return ens.getParticleMass(n); }
-		void setPos(double x, double y, double z) {
-			int i = n * MC_DIMS;
+		void setPos(double x, double y, double z) const {
 			ens.pos[  i  ] = x;
 			ens.pos[i + 1] = y;
 			ens.pos[i + 2] = z;
 		}
-		void setVel(double vx, double vy, double vz) {
-			int i = n * MC_DIMS;
+		void setVel(double vx, double vy, double vz) const {
 			ens.vel[  i  ] = vx;
 			ens.vel[i + 1] = vy;
 			ens.vel[i + 2] = vz;

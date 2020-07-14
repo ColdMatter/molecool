@@ -42,18 +42,19 @@ namespace molecool {
         const double endT = 1.0;
         double t = startT;
 
-        // taking discrete steps is better than using integrate(), we can break out early if no particles are active
-        //integrate_const(stepper, thruster, std::make_pair(std::ref(ensemble.positions), std::ref(ensemble.velocities)), startT, endT, dt);
         watcher.deploy(t);
         for (double t = startT; t <= endT; t += dt) {
+            // calculate the relevant quantum state populations (if appropriate)
+
             // advance classical states one timestep
-            stepper.do_step(std::ref(thruster), std::make_pair(std::ref(ensemble.pos), std::ref(ensemble.vel)), t, dt);
+            stepper.do_step(std::ref(thruster), std::make_pair(std::ref(ensemble.getPos()), std::ref(ensemble.getVel())), t, dt);
+            
             // deploy watcher object, tracking trajectories, population statistics, etc.
             watcher.deploy(t);
-            // gather statistics for particle lifetime (number of active particles vs time, etc.)
+
+            // check for early exit
             if (ensemble.getActivePopulation() == 0) { break; }
         }
-
         MC_CORE_TRACE("propagation complete, {0} particles still active", ensemble.getActivePopulation());
     }
 

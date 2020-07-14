@@ -14,7 +14,7 @@ namespace molecool {
 		Sandbox() {
 
 			// add particles to the simulation according to the given initial distributions
-			int nParticles = 100;
+			int nParticles = 1'000'000;
 			PosDist xDist = Dist(PDF::gaussian, 0.0, 1.0);
 			VelDist vxDist = Dist(PDF::gaussian, 0.0, 1.0);
 			PosDist yDist = Dist(PDF::gaussian, 0.0, 1.0);
@@ -27,10 +27,11 @@ namespace molecool {
 
 			// a particle filter
 			auto filter = [](ParticleProxy pp, double t) -> bool {
-				return (pp.getX() > 0.5) && (t > 0.5);
+				return (pp.getIndex() == 0) && (t > 0.5);
 			};
 			addFilter(filter);
-
+			
+			
 			// add gravity
 			auto gravity = [](ParticleProxy pp, double t) -> Force {
 				double m = pp.getMass();
@@ -49,12 +50,12 @@ namespace molecool {
 			
 			// add an observer to track the trajectory of a particle (to the console)
 			auto trajTracker = [](Ensemble& e, double t) -> void {
-				int n = 1;		// particle number 0..nParticles-1
+				int n = 0;		// particle number 0..nParticles-1
 				ParticleProxy p = ParticleProxy(e, n);
-				printf("particle %d at (%.3f, %.3f, %.3f) at t=%.3f \n", n, p.getX(), p.getY(), p.getZ(), t);
+				printf("particle %d at (%.6f, %.6f, %.6f) at t=%.6f \n", n, p.getX(), p.getY(), p.getZ(), t);
 			};
 			addObserver(trajTracker);
-
+			
 			// that's all there is to do!
 		
 		};

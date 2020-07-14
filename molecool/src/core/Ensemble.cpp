@@ -82,21 +82,10 @@ namespace molecool {
 		active += nParticles;
 	}
 
-	bool Ensemble::isParticleActive(int i) {
-		return actives.at(i);
-	}
-
 	void Ensemble::deactivateParticle(int i) {
 		actives.at(i) = false;
 		active--;
 	}
 
-	int Ensemble::getActivePopulation() {
-		return active;
-	}
-
-	double Ensemble::getParticleMass(int i) {
-		return 1;
-	}
 
 }

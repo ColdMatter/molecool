@@ -6,8 +6,8 @@
 
 namespace molecool {
 
-    using FilterFunction = std::function< bool(ParticleProxy /*particle*/, double /*t*/) >;
-    using ForceFunction = std::function< Force(ParticleProxy /*particle*/, double /*t*/) >;
+    using FilterFunction = std::function< bool(const ParticleProxy& /*particle*/, double /*t*/) >;
+    using ForceFunction = std::function< Force(const ParticleProxy& /*particle*/, double /*t*/) >;
 
 
     // a functor that knows how to calculate accelerations for particles in the simulation
@@ -34,10 +34,10 @@ namespace molecool {
         std::vector<ForceFunction> forces;
 
         // apply all filter tests
-        inline bool filter(ParticleProxy pp, double t);
+        inline bool filter(const ParticleProxy& pp, double t);
 
         // get sum of all acting forces
-        inline Force getTotalForce(ParticleProxy pp, double t);
+        inline Force getTotalForce(const ParticleProxy& pp, double t);
 
     };
 

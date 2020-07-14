@@ -107,7 +107,7 @@ project "molecool"
         }
 
     filter "configurations:Debug"
-        symbols "on"
+        symbols "On"
         runtime "Debug"
         
         defines {
@@ -115,12 +115,13 @@ project "molecool"
         }
 
     filter "configurations:Release"
-        optimize "on"
+        optimize "Speed"
         runtime "Release"
         
         defines {
             "MC_RELEASE"
         }
+
 
 ------------------------------------------------------------------
 project "sandbox"
@@ -195,7 +196,7 @@ project "sandbox"
         }
 
     filter "configurations:Debug"
-        symbols "on"
+        symbols "On"
         runtime "Debug"
         
         defines {
@@ -204,7 +205,7 @@ project "sandbox"
         }
 
     filter "configurations:Release"
-        optimize "on"
+        optimize "Speed"
         runtime "Release"
         
         defines {

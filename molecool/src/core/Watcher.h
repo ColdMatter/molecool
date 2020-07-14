@@ -4,12 +4,12 @@
 
 namespace molecool {
 
-    using Observer = std::function< void( Ensemble& e /*ensemble*/, double /*t*/) >;
+    using Observer = std::function< void(Ensemble& e /*ensemble*/, double /*t*/) >;
     
     class Watcher
     {
     public:
-        Watcher(Ensemble& ens);
+        Watcher(const Ensemble& ens);
 
         void deploy(double t);
 
