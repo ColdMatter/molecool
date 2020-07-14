@@ -32,7 +32,7 @@ You've created a new fix or feature for molecool. Awesome!
 
 2. Create a topic branch, and make all of your changes on that branch.
 
-3. Submit a pull request, use the implemented issue template if it is based on an issue or the new issue template if it is not linked to any issue.
+3. Submit a pull request using the implemented [pull request template][pr-template].
 
 4. Give us a moment. _molecool_ is maintained by only a few people, so it may take us a bit to review your request. 
 
@@ -79,5 +79,6 @@ When that happens, we have to reject the whole thing. If you submit each change 
 [how-to-ask]: https://stackoverflow.com/help/how-to-ask
 [issue-tracker]: https://github.com/ColdMatter/molecool/issues
 [submit-pr]: https://github.com/ColdMatter/molecool/pulls
+[pr-template]: https://github.com/ColdMatter/molecool/notes/pull_request_template.md
 [thinkful-pr-tutorial]: https://www.thinkful.com/learn/github-pull-request-tutorial/
 [github-help-closing-keywords]: https://help.github.com/en/articles/closing-issues-using-keywords
