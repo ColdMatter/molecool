@@ -6,6 +6,24 @@ This is a prototype simulation that uses the 'molecool' simulation engine.
 
 namespace molecool {
 
+	// An example of a functor that can be used as a force callback.
+	// In this case, it represents gravity in the y-direction
+	struct Gravity {
+		Force operator()(const ParticleProxy& pp, double t) {
+			double m = pp.getMass();
+			const double g = 9.8;
+			return Force(0, -m * g, 0);
+		}
+	};
+
+	// An example of a free function that can be used as a force callback.
+	// In this case, just a damping force opposing the current velocity
+	Force damping(const ParticleProxy& pp, double t) {
+		const double d = 0.1;		// damping coefficient
+		return -d * pp.getVel();
+	}
+
+
 	class Sandbox : public Simulation {
 
 	public:
@@ -25,28 +43,27 @@ namespace molecool {
 
 			// then register watchers, forces, etc.
 
-			// a particle filter
+			// register a particle filter, using a lambda as the filter callback
 			auto filter = [](const ParticleProxy& pp, double t) -> bool {
 				return (pp.getIndex() == 0) && (t > 0.5);
 			};
 			addFilter(filter);
 			
-			
-			// add gravity
-			auto gravity = [](const ParticleProxy& pp, double t) -> Force {
-				double m = pp.getMass();
-				const double g = 9.8;
-				return Force(0, -m * g, 0);
-			};
+			// register the gravitational force, using a functor as the force callback
+			Gravity gravity;
 			addForce(gravity);
+
+			// register a damping force, using a free function as the force callback
+			addForce(damping);
 			
-			// add damped simple harmonic oscillator force
+			// register a 3D simple harmonic oscillator force, using a lambda as a force callback
 			auto sho3d = [](const ParticleProxy& pp, double t) -> Force {
 				const double k = 1.0;		// spring constant
-				const double gam = 0.1;		// damping constant
-				return -k * pp.getPos() - gam * pp.getVel();
+				return -k * pp.getPos();
 			};
 			addForce(sho3d);
+
+
 			
 			// add an observer to track the trajectory of a particle (to the console)
 			auto trajTracker = [](const Ensemble& e, double t) -> void {

@@ -79,6 +79,6 @@ When that happens, we have to reject the whole thing. If you submit each change 
 [how-to-ask]: https://stackoverflow.com/help/how-to-ask
 [issue-tracker]: https://github.com/ColdMatter/molecool/issues
 [submit-pr]: https://github.com/ColdMatter/molecool/pulls
-[pr-template]: https://github.com/ColdMatter/molecool/notes/pull_request_template.md
+[pr-template]: https://github.com/ColdMatter/molecool/blob/master/docs/pull_request_template.md
 [thinkful-pr-tutorial]: https://www.thinkful.com/learn/github-pull-request-tutorial/
 [github-help-closing-keywords]: https://help.github.com/en/articles/closing-issues-using-keywords
