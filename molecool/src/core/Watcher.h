@@ -4,7 +4,7 @@
 
 namespace molecool {
 
-    using Observer = std::function< void(Ensemble& e /*ensemble*/, double /*t*/) >;
+    using Observer = std::function< void(const Ensemble& e /*ensemble*/, double /*t*/) >;
     
     class Watcher
     {
@@ -17,7 +17,7 @@ namespace molecool {
 
     private:
 
-        Ensemble& ensemble;
+        const Ensemble& ensemble;
 
         // a collection of filter functions that return true if a particle should be stopped
         std::vector<Observer> observers;

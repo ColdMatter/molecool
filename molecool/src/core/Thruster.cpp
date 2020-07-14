@@ -22,7 +22,7 @@ namespace molecool {
 			const ParticleProxy& p = ParticleProxy(ensemble, i);
 			if ( !p.isActive() ) 
 			{	// particle is inactive, hold it at a fixed position
-				//p.setVel(0, 0, 0);					// or double* vv = (double*)&v[j]; vv[0] = vv[1] = vv[2] = 0.0;
+				// double* vv = (double*)&v[j]; vv[0] = vv[1] = vv[2] = 0.0;	// set velocity to zero, breaking the const promise
 				//a[j] = a[j + 1] = a[j + 2] = 0.0;
 				continue;
 			}
@@ -30,8 +30,8 @@ namespace molecool {
 			{	// filter actually evaluates as true 3 times before molecule is deactivated, allowing v,a to damp to zero before deactivation
 				// if you deactivate the particle on the first filter (=true) instance, you have to continually hold v=a=0 while inactive
 				//printf("lost - x: (%.6f, %.6f, %.6f), v: (%.6f, %.6f, %.6f), a: (%.6f, %.6f, %.6f)\n", x[j], x[j + 1], x[j + 2], v[j], v[j + 1], v[j + 2], a[j], a[j + 1], a[j + 2]);
-				if (a[j] == 0 && a[j + 1] == 0 && a[j + 2] == 0) { p.deactivate(); }
-				p.setVel(0, 0, 0);
+				if (a[j] == 0 && a[j + 1] == 0 && a[j + 2] == 0) { ensemble.deactivateParticle(i); }
+				double* vv = (double*)&v[j]; vv[0] = vv[1] = vv[2] = 0.0;	// set velocity to zero, breaking the const promise
 				a[j] = a[j + 1] = a[j + 2] = 0.0;
 			}
 			else 

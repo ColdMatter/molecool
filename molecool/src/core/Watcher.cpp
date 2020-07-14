@@ -3,7 +3,7 @@
 
 namespace molecool {
 
-    Watcher::Watcher(Ensemble& ens)
+    Watcher::Watcher(const Ensemble& ens)
         : ensemble(ens)
     {}
 

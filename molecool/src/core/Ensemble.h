@@ -46,36 +46,25 @@ namespace molecool {
 	// structured as an overall vector of Particle objects
 	// this is useful for doing tests on individual elements, priting, etc.
 	struct ParticleProxy {
-		ParticleProxy(Ensemble& ensemble, int index)
+		ParticleProxy(const Ensemble& ensemble, int index)
 			: n(index), i(n * MC_DIMS), ens(ensemble)
 		{}
 
 		const int n;				// particle number/id 0..nParticles
 		const int i;				// index in various vectors
-		Ensemble& ens;
+		const Ensemble& ens;
 
 		int getIndex() const { return n; }
-		double& getX() const { return ens.pos[  i  ]; }
-		double& getY() const { return ens.pos[i + 1]; }
-		double& getZ() const { return ens.pos[i + 2]; }
-		double& getVx() const { return ens.vel[  i  ]; }
-		double& getVy() const { return ens.vel[i + 1]; }
-		double& getVz() const { return ens.vel[i + 2]; }
+		const double& getX() const { return ens.pos[  i  ]; }
+		const double& getY() const { return ens.pos[i + 1]; }
+		const double& getZ() const { return ens.pos[i + 2]; }
+		const double& getVx() const { return ens.vel[  i  ]; }
+		const double& getVy() const { return ens.vel[i + 1]; }
+		const double& getVz() const { return ens.vel[i + 2]; }
 		Position getPos() const { return Position( getX(), getY(), getZ() ); }
 		Velocity getVel() const { return Position( getVx(), getVy(), getVz() ); }
-		bool isActive() const { return ens.isParticleActive(n); }
-		void deactivate() const { ens.deactivateParticle(n); }
-		double getMass() const { return ens.getParticleMass(n); }
-		void setPos(double x, double y, double z) const {
-			ens.pos[  i  ] = x;
-			ens.pos[i + 1] = y;
-			ens.pos[i + 2] = z;
-		}
-		void setVel(double vx, double vy, double vz) const {
-			ens.vel[  i  ] = vx;
-			ens.vel[i + 1] = vy;
-			ens.vel[i + 2] = vz;
-		}
+		const bool isActive() const { return ens.isParticleActive(n); }
+		const double getMass() const { return ens.getParticleMass(n); }
 	};
 
 }
