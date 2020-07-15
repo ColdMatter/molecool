@@ -16,23 +16,23 @@ namespace molecool {
 		Acceleration acc;
 		#pragma omp parallel for
 		for (int i = 0; i < nParticles; ++i) {
-			//const ParticleProxy& p = ParticleProxy(ensemble, i);
 			int j = MC_DIMS * i;					// particle index in x/v/a vectors
-			//if (i == 0) { printf("x: (%.6f, %.6f, %.6f), v: (%.6f, %.6f, %.6f), a: (%.6f, %.6f, %.6f)\n", x[j], x[j + 1], x[j + 2], v[j], v[j + 1], v[j + 2], a[j], a[j + 1], a[j + 2]); }
 			const ParticleProxy& p = ParticleProxy(ensemble, i);
-			if ( !p.isActive() ) 
-			{	// particle is inactive, hold it at a fixed position
-				// double* vv = (double*)&v[j]; vv[0] = vv[1] = vv[2] = 0.0;	// set velocity to zero, breaking the const promise
-				//a[j] = a[j + 1] = a[j + 2] = 0.0;
-				continue;
-			}
+			if (!p.isActive()) { continue; }
 			else if (filter(p, t))
 			{	// filter actually evaluates as true 3 times before molecule is deactivated, allowing v,a to damp to zero before deactivation
 				// if you deactivate the particle on the first filter (=true) instance, you have to continually hold v=a=0 while inactive
 				//printf("lost - x: (%.6f, %.6f, %.6f), v: (%.6f, %.6f, %.6f), a: (%.6f, %.6f, %.6f)\n", x[j], x[j + 1], x[j + 2], v[j], v[j + 1], v[j + 2], a[j], a[j + 1], a[j + 2]);
-				if (a[j] == 0 && a[j + 1] == 0 && a[j + 2] == 0) { ensemble.deactivateParticle(i); }
 				double* vv = (double*)&v[j]; vv[0] = vv[1] = vv[2] = 0.0;	// set velocity to zero, breaking the const promise
-				a[j] = a[j + 1] = a[j + 2] = 0.0;
+				if (a[j] == 0.0 && a[j + 1] == 0.0 && a[j + 2] == 0.0) 
+				{	// acceleration has properly damped to zero, OK to never change it again 
+					ensemble.deactivateParticle(i); 
+					MC_CORE_TRACE("particle lost, x={0}, v={1}, a={2}", p.getPos(), p.getVel(), acc);
+				}
+				else 
+				{	// particle matches filter condition but acceleration hasn't reached zero yet due to odeint internal state 
+					a[j] = a[j + 1] = a[j + 2] = 0.0; 
+				}
 			}
 			else 
 			{

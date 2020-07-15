@@ -6,7 +6,7 @@ This is a prototype simulation that uses the 'molecool' simulation engine.
 
 namespace molecool {
 
-	// An example of a functor that can be used as a force callback.
+	// An example of a functor that can be used as a force callback
 	// In this case, it represents gravity in the y-direction
 	struct Gravity {
 		Force operator()(const ParticleProxy& pp, double t) {
@@ -32,7 +32,7 @@ namespace molecool {
 		Sandbox() {
 
 			// add particles to the simulation according to the given initial distributions
-			int nParticles = 100;
+			int nParticles = 10;
 			PosDist xDist = Dist(PDF::gaussian, 0.0, 1.0);
 			VelDist vxDist = Dist(PDF::gaussian, 0.0, 1.0);
 			PosDist yDist = Dist(PDF::gaussian, 0.0, 1.0);
@@ -63,7 +63,6 @@ namespace molecool {
 			};
 			addForce(sho3d);
 
-
 			
 			// add an observer to track the trajectory of a particle (to the console)
 			auto trajTracker = [](const Ensemble& e, double t) -> void {
@@ -72,6 +71,7 @@ namespace molecool {
 				printf("particle %d at (%.6f, %.6f, %.6f) at t=%.6f \n", n, p.getX(), p.getY(), p.getZ(), t);
 			};
 			addObserver(trajTracker);
+			
 			
 			// that's all there is to do!
 		
