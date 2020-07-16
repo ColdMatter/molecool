@@ -42,15 +42,6 @@ namespace molecool {
 			addParticles(nParticles, ParticleId::CaF, xDist, vxDist, yDist, vyDist, zDist, vzDist);
 			//////////////////////////////////////////////
 
-
-			//////////////////////////////////////////////
-			// register particle filter(s) to indicate when a particle should stop propagating
-			auto filter = [](const ParticleProxy& pp, double t) -> bool {
-				return (pp.getIndex() == 0) && (t > 0.5);
-			};
-			addFilter(filter);
-			//////////////////////////////////////////////
-
 			
 			//////////////////////////////////////////////
 			// register force(s)
@@ -64,6 +55,15 @@ namespace molecool {
 				return -k * pp.getPos();
 			};
 			addForce(sho3d);
+			//////////////////////////////////////////////
+
+
+			//////////////////////////////////////////////
+			// register particle filter(s) to indicate when a particle should stop propagating
+			auto filter = [](const ParticleProxy& pp, double t) -> bool {
+				return (pp.getIndex() == 0) && (t > 0.5);
+			};
+			addFilter(filter);
 			//////////////////////////////////////////////
 			
 
