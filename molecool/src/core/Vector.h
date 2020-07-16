@@ -1,5 +1,7 @@
 #pragma once
 
+#include "spdlog/fmt/ostr.h"
+
 namespace molecool {
     
     struct  Vector
@@ -16,6 +18,12 @@ namespace molecool {
 		Vector& operator*=(double d);
 		Vector operator/(double d) const;
 		Vector& operator/=(double d);
+
+		template<typename OStream>
+		friend OStream& operator<<(OStream& os, const Vector& v)
+		{
+			return os << std::setprecision(6) << "(" << v.x << ", " << v.y << ", " << v.z << ")";
+		}
 
     };
 
