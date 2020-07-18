@@ -129,8 +129,8 @@ namespace molecool {
 				}
 				internalEndSession();
 			}
-			std::string outputFile = "profile_" + name + ".json";
-			std::string statsFile = "profile_" + name + "_stats.txt";
+			std::string outputFile = "output/profile_" + name + ".json";
+			std::string statsFile = "output/profile_" + name + "_stats.txt";
 			m_outputStream.open(outputFile);
 			m_statsStream.open(statsFile);
 

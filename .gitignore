@@ -50,6 +50,3 @@ enc_temp_folder/
 *.a
 *.lib
 
-# profiler outputs
-*profile_*
-

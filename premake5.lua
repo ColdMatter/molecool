@@ -42,7 +42,8 @@ project "molecool"
     systemversion "latest"
 
     targetdir ("bin/" .. outputdir .. "/%{prj.name}") -- relative to solution/workspace
-    objdir ("build/" .. outputdir .. "/%{prj.name}")  -- relative to solution/workspace
+    objdir ("build/" .. outputdir .. "/%{prj.name}")  
+    debugdir ("bin/" .. outputdir .. "/%{prj.name}") -- if changed, must delete .vsproj files and .vs directory
 
     pchheader "mcpch.h"
     pchsource "molecool/src/mcpch.cpp" -- VS only, ignored on other compilers
@@ -111,7 +112,6 @@ project "molecool"
     filter "configurations:Debug"
         symbols "On"
         runtime "Debug"
-        --debugdir = targetdir
         
         defines {
             "MC_DEBUG"
@@ -137,7 +137,7 @@ project "sandbox"
 
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
     objdir ("build/" .. outputdir .. "/%{prj.name}")
-    --debugdir = targetdir
+    debugdir ("bin/" .. outputdir .. "/%{prj.name}")
 
     files {
         "%{prj.name}/src/**.h",
@@ -168,7 +168,7 @@ project "sandbox"
     }
 
     postbuildcommands {
-       -- ("{MKDIR} " .. "%{cfg.buildtarget.directory}" .. "/output")
+        ("{MKDIR} " .. "%{cfg.buildtarget.directory}" .. "/output")
     }
 
     filter "system:windows"
@@ -186,7 +186,7 @@ project "sandbox"
     filter "system:macosx"
 
         defines {
-            MC_PLATFORM_MACOSX
+            "MC_PLATFORM_MACOSX"
         }
 
         buildoptions {
@@ -197,7 +197,7 @@ project "sandbox"
     filter "system:linux"
 
         defines {
-            MC_PLATFORM_LINUX
+            "MC_PLATFORM_LINUX"
         }
 
         buildoptions {
@@ -208,7 +208,6 @@ project "sandbox"
     filter "configurations:Debug"
         symbols "On"
         runtime "Debug"
-        --debugdir = targetdir
         
         defines {
             "_DEBUG",

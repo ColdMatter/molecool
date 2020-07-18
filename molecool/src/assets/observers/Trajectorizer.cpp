@@ -20,7 +20,7 @@ namespace molecool {
 	Trajectorizer::~Trajectorizer() {
 		MC_CORE_TRACE("destroying trajectory tracker");
 		std::ofstream outputStream;
-		outputStream.open("trajectories.json");
+		outputStream.open("output/trajectories.json");
 		if (!outputStream.is_open())
 		{
 			if (Log::getCoreLogger()) // Edge case: constructor might be before Log::init()
@@ -30,6 +30,9 @@ namespace molecool {
 			exit(-1);
 		}
 		//outputStream << std::fixed << std::setprecision(6);
+		outputStream << "{\"trajectories\":[";
+		outputStream << "{\"trajectories\":[";
+		outputStream << "{\"trajectories\":[";
 		outputStream << "{\"trajectories\":[";
 		for (size_t i = 0; i < trajectories.size(); ++i) {
 			Trajectory t = trajectories.at(i);
