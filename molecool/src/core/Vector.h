@@ -1,13 +1,11 @@
 #pragma once
 
-#include "spdlog/fmt/ostr.h"
-
 namespace molecool {
     
     struct  Vector
     {
-        Vector();
-        Vector(double x, double y, double z);
+        explicit Vector(double* xPtr);
+        Vector(double x = 0.0, double y = 0.0, double z = 0.0);
 
         double x, y, z;
 
@@ -19,11 +17,7 @@ namespace molecool {
 		Vector operator/(double d) const;
 		Vector& operator/=(double d);
 
-		template<typename OStream>
-		friend OStream& operator<<(OStream& os, const Vector& v)
-		{
-			return os << std::setprecision(6) << "(" << v.x << ", " << v.y << ", " << v.z << ")";
-		}
+		friend std::ostream& operator<<(std::ostream& os, const Vector& v);
 
     };
 

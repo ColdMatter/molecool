@@ -41,8 +41,8 @@ project "molecool"
     staticruntime "on"
     systemversion "latest"
 
-    targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-    objdir ("build/" .. outputdir .. "/%{prj.name}")
+    targetdir ("bin/" .. outputdir .. "/%{prj.name}") -- relative to solution/workspace
+    objdir ("build/" .. outputdir .. "/%{prj.name}")  -- relative to solution/workspace
 
     pchheader "mcpch.h"
     pchsource "molecool/src/mcpch.cpp" -- VS only, ignored on other compilers
@@ -57,7 +57,8 @@ project "molecool"
         "%{prj.name}/vendor/spdlog/include",
         boostDir,
         mklIncDir,
-        "%{solutionDir}/vendor/lua"
+        "%{solutionDir}/vendor/lua",
+        "%{prj.name}/vendor/nlohmann_json/include"
     }
 
     libdirs {
@@ -76,7 +77,8 @@ project "molecool"
     filter "system:windows"
         
         defines {
-            MC_PLATFORM_WINDOWS
+            "MC_PLATFORM_WINDOWS",
+            "NOMINMAX"
         }
 
         buildoptions {
@@ -87,7 +89,7 @@ project "molecool"
     filter "system:macosx"
 
         defines {
-            MC_PLATFORM_MACOSX
+            "MC_PLATFORM_MACOSX"
         }
 
         buildoptions {
@@ -98,7 +100,7 @@ project "molecool"
     filter "system:linux"
 
         defines {
-            MC_PLATFORM_LINUX
+            "MC_PLATFORM_LINUX"
         }
 
         buildoptions {
@@ -109,6 +111,7 @@ project "molecool"
     filter "configurations:Debug"
         symbols "On"
         runtime "Debug"
+        --debugdir = targetdir
         
         defines {
             "MC_DEBUG"
@@ -134,6 +137,7 @@ project "sandbox"
 
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
     objdir ("build/" .. outputdir .. "/%{prj.name}")
+    --debugdir = targetdir
 
     files {
         "%{prj.name}/src/**.h",
@@ -145,7 +149,8 @@ project "sandbox"
         "molecool/vendor/spdlog/include",
         boostDir,
         mklIncDir,
-        "%{solutionDir}/vendor/lua"
+        "%{solutionDir}/vendor/lua",
+        "molecool/vendor/nlohmann_json/include"
     }
 
     libdirs {
@@ -162,10 +167,15 @@ project "sandbox"
         "libiomp5md.lib"
     }
 
+    postbuildcommands {
+       -- ("{MKDIR} " .. "%{cfg.buildtarget.directory}" .. "/output")
+    }
+
     filter "system:windows"
 
         defines {
-            MC_PLATFORM_WINDOWS
+            "MC_PLATFORM_WINDOWS",
+            "NOMINMAX"
         }
 
         buildoptions {
@@ -198,6 +208,7 @@ project "sandbox"
     filter "configurations:Debug"
         symbols "On"
         runtime "Debug"
+        --debugdir = targetdir
         
         defines {
             "_DEBUG",

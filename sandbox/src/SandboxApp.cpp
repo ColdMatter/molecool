@@ -3,16 +3,23 @@ This is a prototype simulation that uses the 'molecool' simulation engine.
 */
 
 #include "molecool.h"
+/*
+extern "C" {
+#include "lua.h"
+#include "lauxlib.h"
+#include "lualib.h"
+}
+*/
+
+
 
 namespace molecool {
 
-	// An example struct to illustrate how forces can be added 
+	// An example struct to illustrate how forces can be added using different structures
 	struct Gravity {
-		// you can build a functor object where the force is returned when evaluating ()
-		Force operator()(const ParticleProxy& pp, double t) { return Force(0, -pp.getMass() * 9.8, 0); }
-		// or you can use a member function 
-		Force memFunc(const ParticleProxy& pp, double t) { return Force(0, -pp.getMass() * 9.8, 0); }
-		static Force staFunc(const ParticleProxy& pp, double t) { return Force(0, -pp.getMass() * 9.8, 0); }
+		Force operator()(const ParticleProxy& pp, double t) { return Force(0, -pp.getMass() * 9.8, 0); }		// functor
+		Force memFunc(const ParticleProxy& pp, double t) { return Force(0, -pp.getMass() * 9.8, 0); }			// member function	
+		static Force staFunc(const ParticleProxy& pp, double t) { return Force(0, -pp.getMass() * 9.8, 0); }	// static member function
 	};
 
 	// Alternatively, a free function can be used as a force callback
@@ -30,9 +37,14 @@ namespace molecool {
 		// client simulation class constructor does exactly that - it constructs the simulation
 		Sandbox() {
 
+			// set simulation time parameters
+			tStart = 0.0;
+			tEnd = 1.0;
+			dt = 0.5;
+
 			//////////////////////////////////////////////
 			// create a particle ensemble to be simulated
-			int nParticles = 100;
+			int nParticles = 10;
 			PosDist xDist = Dist(PDF::gaussian, 0.0, 1.0);
 			VelDist vxDist = Dist(PDF::gaussian, 0.0, 1.0);
 			PosDist yDist = Dist(PDF::gaussian, 0.0, 1.0);
@@ -41,7 +53,7 @@ namespace molecool {
 			VelDist vzDist = Dist(PDF::delta, 0.0);
 			addParticles(nParticles, ParticleId::CaF, xDist, vxDist, yDist, vyDist, zDist, vzDist);
 			//////////////////////////////////////////////
-
+			
 			
 			//////////////////////////////////////////////
 			// register force(s)
@@ -69,12 +81,17 @@ namespace molecool {
 
 			//////////////////////////////////////////////
 			// register observer(s)
-			auto trajTracker = [](const Ensemble& e, double t) -> void {
+			/*
+			auto trajTracker = [](const Ensemble & ens, double t) -> void {
 				int n = 0;		// particle number 0..nParticles-1
-				ParticleProxy p = ParticleProxy(e, n);
+				ParticleProxy p = ParticleProxy(ens, n);
 				std::cout << "t = " << t << ", particle " << p.getIndex() << " at " << p.getPos() << std::endl;
 			};
-			addObserver(trajTracker);
+			addObserver(std::make_shared<trajTracker>);
+			*/
+			 
+			addObserver(std::make_shared<Trajectorizer>(ensemble, 2));
+			
 			//////////////////////////////////////////////
 			
 

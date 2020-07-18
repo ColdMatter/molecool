@@ -3,8 +3,8 @@
 
 namespace molecool {
 
-	Vector::Vector()
-		: x(0.0), y(0.0), z(0.0)
+	Vector::Vector(double* xPtr)
+		: x(xPtr[0]), y(xPtr[1]), z(xPtr[2])
 	{}
 
 	Vector::Vector(double x, double y, double z)
@@ -66,6 +66,11 @@ namespace molecool {
 	// note: not a class/struct member function
 	Vector operator*(double d, Vector v) {
 		return v *= d;
+	}
+
+	std::ostream& operator<<(std::ostream& os, const Vector& v) {
+		os << v.x << ", " << v.y << ", " << v.z;
+		return os;
 	}
 
 }

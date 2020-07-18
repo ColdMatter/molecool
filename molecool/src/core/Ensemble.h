@@ -29,6 +29,8 @@ namespace molecool {
 		inline bool isParticleActive(int i) const { return actives.at(i); }
 		inline double getParticleMass(int i) const { return 1; }
 		void deactivateParticle(int i);
+		inline Position getParticlePos(int i) const { return Position( (double*)&pos[i * MC_DIMS] ); }
+		inline Velocity getParticleVel(int i) const { return Velocity( (double*)&vel[i * MC_DIMS] ); }
 
 		// ensemble (classical) state vectors organized by particle as [ x0, y0, z0, x1, y1, z1, ... ] for particle N = 0, 1, ... 
 		state_type pos, vel;
@@ -61,8 +63,8 @@ namespace molecool {
 		const double& getVx() const { return ens.vel[  i  ]; }
 		const double& getVy() const { return ens.vel[i + 1]; }
 		const double& getVz() const { return ens.vel[i + 2]; }
-		Position getPos() const { return Position( getX(), getY(), getZ() ); }
-		Velocity getVel() const { return Position( getVx(), getVy(), getVz() ); }
+		const Position getPos() const { return ens.getParticlePos(n); }
+		const Velocity getVel() const { return ens.getParticleVel(n); }
 		const bool isActive() const { return ens.isParticleActive(n); }
 		const double getMass() const { return ens.getParticleMass(n); }
 	};

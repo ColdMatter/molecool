@@ -37,20 +37,14 @@ namespace molecool {
         //using stepper_type = velocity_verlet< state_type, state_type, double, state_type, double, double, vector_space_algebra, mkl_operations >;
         using stepper_type = velocity_verlet< state_type, state_type, double, state_type, double, double, openmp_range_algebra >;
         stepper_type stepper;
-        const double startT = 0.0;
-        const double dt = 0.001;
-        const double endT = 1.0;
-        double t = startT;
-
-        watcher.deploy(t);
-        for (double t = startT; t <= endT; t += dt) {
+        for (double t = tStart; t <= tEnd; t += dt) {
             // calculate the relevant quantum state populations (if appropriate)
 
             // advance classical states one timestep
             stepper.do_step(std::ref(thruster), std::make_pair(std::ref(ensemble.getPos()), std::ref(ensemble.getVel())), t, dt);
             
             // deploy watcher object, tracking trajectories, population statistics, etc.
-            watcher.deploy(t);
+            watcher.deployObservers(t);
 
             // check for early exit
             if (ensemble.getActivePopulation() == 0) { break; }
@@ -75,7 +69,7 @@ namespace molecool {
         thruster.addForce(ff);
     }
 
-    void Simulation::addObserver(Observer obs) {
+    void Simulation::addObserver(ObserverPtr obs) {
         watcher.addObserver(obs);
     }
 

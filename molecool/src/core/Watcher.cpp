@@ -7,14 +7,14 @@ namespace molecool {
         : ensemble(ens)
     {}
 
-    void Watcher::deploy(double t) {
+    void Watcher::deployObservers(double t) {
         MC_PROFILE_FUNCTION();
-        for (Observer obs : observers) {
-            obs(ensemble, t);
+        for (ObserverPtr obs : observers) {
+            (*obs)(ensemble, t);
         }
     }
 
-    void Watcher::addObserver(Observer obs) {
+    void Watcher::addObserver(ObserverPtr obs) {
         observers.push_back(obs);
     }
 

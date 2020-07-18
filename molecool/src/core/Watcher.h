@@ -4,23 +4,32 @@
 
 namespace molecool {
 
-    using Observer = std::function< void(const Ensemble& e /*ensemble*/, double /*t*/) >;
+
+
+    class Observer {
+    public:
+        virtual void operator()(const Ensemble& ens, double t) = 0;	// pure virtual, must be implemented in child classes
+    };
+
+    //using Observer = std::function< void(const Ensemble& e /*ensemble*/, double /*t*/) >;
+    using ObserverPtr = std::shared_ptr<Observer>;
+    //using Observer = std::shared_ptr<void(const Ensemble&, double)>;    // shared_ptr to function
     
     class Watcher
     {
     public:
         Watcher(const Ensemble& ens);
 
-        void deploy(double t);
+        void deployObservers(double t);
 
-        void addObserver(Observer obs);
+        void addObserver(ObserverPtr obs);
 
     private:
 
         const Ensemble& ensemble;
 
-        // a collection of filter functions that return true if a particle should be stopped
-        std::vector<Observer> observers;
+        // a collection of observers
+        std::vector<ObserverPtr> observers;
 
     };
 }

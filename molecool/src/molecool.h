@@ -16,6 +16,8 @@
 #include "debug/Profiler.h"
 //----------------------------------------------------------
 
+#include "assets/observers/Trajectorizer.h"
+
 //--- Random number generation -----------------------------
 #include "core/Random.h"
 //----------------------------------------------------------
