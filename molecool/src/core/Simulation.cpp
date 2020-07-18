@@ -16,9 +16,9 @@ namespace molecool {
     void Simulation::run() {
         MC_PROFILE_FUNCTION();
         
-        // ensemble.save("initials.txt");
+        ensemble.save("initials");
         propagate();
-        // ensemble.save("finals.txt");
+        ensemble.save("finals");
 
         //std::cout << "press any key to end" << std::endl;
         //std::cin.get();

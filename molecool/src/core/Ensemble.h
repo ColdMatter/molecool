@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 #include "Core.h"
 #include "Random.h"
 #include "Vector.h"
@@ -31,6 +32,8 @@ namespace molecool {
 		void deactivateParticle(int i);
 		inline Position getParticlePos(int i) const { return Position( (double*)&pos[i * MC_DIMS] ); }
 		inline Velocity getParticleVel(int i) const { return Velocity( (double*)&vel[i * MC_DIMS] ); }
+
+		void save(std::string filename);
 
 		// ensemble (classical) state vectors organized by particle as [ x0, y0, z0, x1, y1, z1, ... ] for particle N = 0, 1, ... 
 		state_type pos, vel;

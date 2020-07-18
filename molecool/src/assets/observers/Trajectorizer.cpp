@@ -6,7 +6,7 @@ namespace molecool {
 	Trajectorizer::Trajectorizer(const Ensemble& ens, int nParticles)
 		: m_nParticles(std::min(nParticles, ens.getPopulation()))
 	{
-		MC_CORE_TRACE("Creating trajectory tracker (observer), tracking first {0} trajectories", m_nParticles);
+		MC_CORE_TRACE("Creating trajectorizer observer, tracking first {0} trajectories", m_nParticles);
 		trajectories.resize(m_nParticles);
 	}
 
@@ -18,6 +18,7 @@ namespace molecool {
 	}
 
 	Trajectorizer::~Trajectorizer() {
+		MC_PROFILE_FUNCTION();
 		MC_CORE_TRACE("destroying trajectory tracker");
 		std::ofstream outputStream;
 		outputStream.open("output/trajectories.json");
@@ -29,10 +30,7 @@ namespace molecool {
 			}
 			exit(-1);
 		}
-		//outputStream << std::fixed << std::setprecision(6);
-		outputStream << "{\"trajectories\":[";
-		outputStream << "{\"trajectories\":[";
-		outputStream << "{\"trajectories\":[";
+		outputStream << std::fixed << std::setprecision(6);
 		outputStream << "{\"trajectories\":[";
 		for (size_t i = 0; i < trajectories.size(); ++i) {
 			Trajectory t = trajectories.at(i);

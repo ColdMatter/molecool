@@ -87,4 +87,26 @@ namespace molecool {
 		active--;
 	}
 
+	void Ensemble::save(std::string filename) {
+		MC_PROFILE_FUNCTION();
+		MC_CORE_TRACE("saving ensemble states");
+		std::ofstream outputStream;
+		outputStream.open("output/" + filename + ".json");
+		if (!outputStream.is_open())
+		{
+			MC_CORE_ERROR("TrajectoryTracker could not open output file.");
+			return;
+		}
+		outputStream << std::fixed << std::setprecision(6);
+		outputStream << "{\"" + filename + "\":[";
+		for (int i = 0; i < population; ++i) {
+			if (i > 0) { outputStream << ","; }
+			outputStream << "{\"position\":[" << getParticlePos(i) << "],";
+			outputStream << "\"velocity\":[" << getParticleVel(i) << "]}";
+		}
+		outputStream << "]}";
+		outputStream.flush();
+		outputStream.close();
+	}
+
 }
