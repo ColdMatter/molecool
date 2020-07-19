@@ -13,7 +13,9 @@ namespace molecool {
 	void Trajectorizer::operator()(const Ensemble& ensemble, double t) {
 		MC_PROFILE_FUNCTION();
 		for (int i = 0; i < m_nParticles; ++i) {
-			trajectories.at(i).push_back(std::make_pair(t, ensemble.getParticlePos(i)));
+			if (ensemble.isParticleActive(i)) {
+				trajectories.at(i).push_back(std::make_pair(t, ensemble.getParticlePos(i)));
+			}
 		}
 	}
 
