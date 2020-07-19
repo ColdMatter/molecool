@@ -40,7 +40,7 @@ namespace molecool {
 			// set simulation time parameters
 			tStart = 0.0;
 			tEnd = 1.0;
-			dt = 0.5;
+			dt = 0.1;
 
 			//////////////////////////////////////////////
 			// create a particle ensemble to be simulated

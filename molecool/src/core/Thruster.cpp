@@ -27,10 +27,10 @@ namespace molecool {
 			{	// check if an active particle should be filtered
 				// filter actually evaluates as true 3 times before molecule is deactivated, allowing v,a to damp to zero before deactivation
 				vel.x = vel.y = vel.z = 0;				// set velocity to zero, breaking the const promise
-				if (acc.x && acc.y == 0.0 && acc.z == 0.0) 
+				if (acc.x == 0 && acc.y == 0.0 && acc.z == 0.0) 
 				{	// acceleration has properly damped to zero, OK to never change it again 
 					ensemble.deactivateParticle(i); 
-					MC_CORE_TRACE("particle lost @ ({0}, {1}, {2})", p.getX(), p.getY(), p.getZ());
+					//MC_CORE_TRACE("particle lost @ ({0}, {1}, {2})", p.getX(), p.getY(), p.getZ());
 				}
 				else 
 				{	// particle matches filter condition but acceleration hasn't reached zero yet due to odeint internal state 
