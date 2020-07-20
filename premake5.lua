@@ -15,7 +15,7 @@ workspace "molecool" -- workspace/solution name
         "MultiProcessorCompile"
     }
 
-    outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}" -- e.g. \Debug-windows-x86_64
+    outputDir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}" -- e.g. \Debug-windows-x86_64
 
     -- MKL library paths etc.
     mklRootDir = os.getenv("MKLROOT")   -- e.g. "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries_2020.1.216/windows/"
@@ -41,12 +41,13 @@ project "molecool"
     staticruntime "on"
     systemversion "latest"
 
-    targetdir ("bin/" .. outputdir .. "/%{prj.name}") -- relative to solution/workspace
-    objdir ("build/" .. outputdir .. "/%{prj.name}")  
-    debugdir ("bin/" .. outputdir .. "/%{prj.name}") -- if changed, must delete .vsproj files and .vs directory
+    targetDir = "bin/" .. outputDir .. "/%{prj.name}"   -- relative to solution/workspace
+    targetdir (targetDir) 
+    objdir ("build/" .. outputDir .. "/%{prj.name}")  
+    --debugdir (targetDir)  -- default is $(ProjectDir) if changed, must delete .vsproj files and .vs directory, then run premake 
 
     pchheader "mcpch.h"
-    pchsource "molecool/src/mcpch.cpp" -- VS only, ignored on other compilers
+    pchsource "molecool/src/mcpch.cpp"                  -- VS only, ignored on other compilers
 
     files {
         "%{prj.name}/src/**.h",
@@ -58,21 +59,23 @@ project "molecool"
         "%{prj.name}/vendor/spdlog/include",
         boostDir,
         mklIncDir,
-        "%{solutionDir}/vendor/lua",
+        "lua/src",
         "%{prj.name}/vendor/nlohmann_json/include"
     }
 
     libdirs {
         mklLibDir,
         mklOmpDir,
-        boostLibDir
+        boostLibDir,
+        "bin/" .. outputDir .. "/lua"
     }
 
     links {
         "mkl_intel_ilp64.lib",     -- interface
         "mkl_intel_thread.lib",    -- threading
         "mkl_core.lib",            -- core
-        "libiomp5md.lib"           -- openmp
+        "libiomp5md.lib",          -- openmp
+        "lua.lib"
     }
 
     filter "system:windows"
@@ -127,6 +130,36 @@ project "molecool"
 
 
 ------------------------------------------------------------------
+project "lua"
+    location "lua"
+    kind "StaticLib"
+    language "C"
+    staticruntime "on"
+    systemversion "latest"
+
+    targetDir = "bin/" .. outputDir .. "/%{prj.name}"
+    targetdir (targetDir) 
+    objdir ("build/" .. outputDir .. "/%{prj.name}")
+
+    files {
+        "%{prj.name}/src/**.h",
+        "%{prj.name}/src/**.c"
+    }
+
+    includedirs {
+        "%{prj.name}/src"
+    }
+
+    filter "configurations:Debug"
+        symbols "On"
+        runtime "Debug"
+
+    filter "configurations:Release"
+        optimize "Speed"
+        runtime "Release"
+
+
+------------------------------------------------------------------
 project "sandbox"
     location "sandbox"
     kind "ConsoleApp"
@@ -135,9 +168,10 @@ project "sandbox"
     staticruntime "on"
     systemversion "latest"
 
-    targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-    objdir ("build/" .. outputdir .. "/%{prj.name}")
-    debugdir ("bin/" .. outputdir .. "/%{prj.name}")
+    targetDir = "bin/" .. outputDir .. "/%{prj.name}"
+    targetdir (targetDir)
+    objdir ("build/" .. outputDir .. "/%{prj.name}")
+    --debugdir (targetDir) -- default is $(ProjectDir)
 
     files {
         "%{prj.name}/src/**.h",
@@ -149,14 +183,15 @@ project "sandbox"
         "molecool/vendor/spdlog/include",
         boostDir,
         mklIncDir,
-        "%{solutionDir}/vendor/lua",
+        "lua/src",
         "molecool/vendor/nlohmann_json/include"
     }
 
     libdirs {
         mklLibDir,
         mklOmpDir,
-        boostLibDir
+        boostLibDir,
+        "bin/" .. outputDir .. "/lua"
     }
 
     links {
@@ -164,11 +199,12 @@ project "sandbox"
         "mkl_intel_ilp64.lib",    
         "mkl_intel_thread.lib",    
         "mkl_core.lib",   
-        "libiomp5md.lib"
+        "libiomp5md.lib",
+        "lua.lib"
     }
 
     postbuildcommands {
-        ("{MKDIR} " .. "%{cfg.buildtarget.directory}" .. "/output")
+        ("{MKDIR} " .. "%{cfg.buildtarget.directory}" .. "output")  -- create directory for simulation outputs, needed if user runs .exe manually
     }
 
     filter "system:windows"

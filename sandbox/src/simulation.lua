@@ -3,8 +3,8 @@ simulation = {
     x = 32.5, y = 20.0
     },
     filename = "sprite.png",
-    begin   = 0.0
-    finish  = 1.0
+    begin   = 0.0,
+    finish  = 1.0,
     dt      = 0.001
 }
 

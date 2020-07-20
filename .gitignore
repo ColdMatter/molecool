@@ -1,6 +1,8 @@
 # Ignore certain directories
 build/*
 bin/*
+*/output/*
+!.bitkeep
 
 # visual studio (or code) specific contents
 .vs/*
@@ -13,11 +15,11 @@ bin/*
 # ignore some strange visual studio directory
 enc_temp_folder/
 
-# Ignore any executables (except premake)
+# Ignore any executables
 *.exe
 *.out
 *.app
-!premake5.exe
+!premake5.exe # premake exception
 
 # Ignore Mac specific files
 .DS_Store

@@ -16,6 +16,8 @@ namespace molecool {
     void Simulation::run() {
         MC_PROFILE_FUNCTION();
         
+        readLuaScript();
+
         ensemble.save("initials");
         propagate();
         ensemble.save("finals");
@@ -72,5 +74,35 @@ namespace molecool {
     void Simulation::addObserver(ObserverPtr obs) {
         watcher.addObserver(obs);
     }
+    
+    void Simulation::readLuaScript() {
+        LuaScript script("src/simulation.lua");                             // load file onto stack
+        float startTime = script.get<float>("simulation.begin");            // extract values
+        float endTime = script.get<float>("simulation.finish");
+        std::string filename = script.get<std::string>("simulation.filename");
+        int num = script.get<int>("number");
+        std::cout << "times = " << startTime << ", " << endTime << std::endl;
+        std::cout << "filename:" << filename << std::endl;
+        std::cout << "number:" << num << std::endl;
 
+        // getting arrays
+        std::vector<int> v = script.getIntVector("array");
+        std::cout << "Contents of array:";
+        for (std::vector<int>::iterator it = v.begin(); it != v.end(); it++) {
+            std::cout << *it << ",";
+        }
+        std::cout << std::endl;
+
+        // getting table keys:
+        std::vector<std::string> keys = script.getTableKeys("simulation");
+        std::cout << "Keys of [simulation] table:";
+        for (std::vector<std::string>::iterator it = keys.begin();
+            it != keys.end();
+            it++) {
+            std::cout << *it << ",";
+        }
+        std::cout << std::endl;
+        
+    }
+    
 }

@@ -5,6 +5,14 @@
 #include "Thruster.h"
 #include "Watcher.h"
 
+#include "LuaScript.h"
+
+extern "C" {
+# include "lua.h"
+# include "lauxlib.h"
+# include "lualib.h"
+}
+
 namespace molecool {
 
     class  Simulation {
@@ -12,7 +20,6 @@ namespace molecool {
         Simulation();
         virtual ~Simulation();
         void run();
-        void propagate();
 
         // helper methods for hiding class structure from user
         void addParticles(int n, ParticleId p, PosDist xDis = Dist(), VelDist vxDis = Dist(), PosDist yDis = Dist(), VelDist vyDis = Dist(), PosDist zDis = Dist(), VelDist vzDis = Dist());
@@ -28,6 +35,10 @@ namespace molecool {
         double tStart = 0.0;
         double tEnd = 1.0;
         double dt = 0.001;
+
+    private:
+        void propagate();
+        void readLuaScript();
 
     };
 
