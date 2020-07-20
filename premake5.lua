@@ -31,6 +31,40 @@ workspace "molecool" -- workspace/solution name
     boostDir = os.getenv("BOOSTROOT")   -- e.g. "C:/Boost/boost_1_73_0/"
     boostLibDir = boostDir .. "stage/lib/"  
 
+------------------------------------------------------------------
+project "lua"
+    location "vendor/lua"
+    kind "StaticLib"
+    language "C"
+    staticruntime "on"
+    systemversion "latest"
+
+    targetDir = "bin/" .. outputDir .. "/%{prj.name}"
+    targetdir (targetDir) 
+    objdir ("build/" .. outputDir .. "/%{prj.name}")
+
+    files {
+        "vendor/%{prj.name}/src/**.h",
+        "vendor/%{prj.name}/src/**.c"
+    }
+    
+    excludes {
+        "vendor/%{prj.name}/src/lua.c",
+        "vendor/%{prj.name}/src/onelua.c",
+        "vendor/%{prj.name}/src/testes/libs/*.c"
+    }
+
+    includedirs {
+        "vendor/%{prj.name}/src"
+    }
+
+    filter "configurations:Debug"
+        symbols "On"
+        runtime "Debug"
+
+    filter "configurations:Release"
+        optimize "Speed"
+        runtime "Release"
 
 ------------------------------------------------------------------
 project "molecool"
@@ -40,6 +74,7 @@ project "molecool"
     cppdialect "C++17"
     staticruntime "on"
     systemversion "latest"
+    dependson "lua"
 
     targetDir = "bin/" .. outputDir .. "/%{prj.name}"   -- relative to solution/workspace
     targetdir (targetDir) 
@@ -127,37 +162,6 @@ project "molecool"
         defines {
             "MC_RELEASE"
         }
-
-
-------------------------------------------------------------------
-project "lua"
-    location "vendor/lua"
-    kind "StaticLib"
-    language "C"
-    staticruntime "on"
-    systemversion "latest"
-
-    targetDir = "bin/" .. outputDir .. "/%{prj.name}"
-    targetdir (targetDir) 
-    objdir ("build/" .. outputDir .. "/%{prj.name}")
-
-    files {
-        "%{prj.name}/src/**.h",
-        "%{prj.name}/src/**.c"
-    }
-
-    includedirs {
-        "%{prj.name}/src"
-    }
-
-    filter "configurations:Debug"
-        symbols "On"
-        runtime "Debug"
-
-    filter "configurations:Release"
-        optimize "Speed"
-        runtime "Release"
-
 
 ------------------------------------------------------------------
 project "sandbox"
