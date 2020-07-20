@@ -59,7 +59,7 @@ project "molecool"
         "%{prj.name}/vendor/spdlog/include",
         boostDir,
         mklIncDir,
-        "lua/src",
+        "vendor/lua/src",
         "%{prj.name}/vendor/nlohmann_json/include"
     }
 
@@ -131,7 +131,7 @@ project "molecool"
 
 ------------------------------------------------------------------
 project "lua"
-    location "lua"
+    location "vendor/lua"
     kind "StaticLib"
     language "C"
     staticruntime "on"
@@ -183,7 +183,7 @@ project "sandbox"
         "molecool/vendor/spdlog/include",
         boostDir,
         mklIncDir,
-        "lua/src",
+        "vendor/lua/src",
         "molecool/vendor/nlohmann_json/include"
     }
 
