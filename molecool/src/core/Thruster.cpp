@@ -45,25 +45,25 @@ namespace molecool {
 		} // end for all particles
 	} // end function
 
-	void Thruster::addFilter(FilterFunction fil) {
+	void Thruster::addFilter(const FilterFunction& fil) {
 		filters.push_back(fil);
 	}
 
 	// apply all registerd filter functions to particle, returning true if any filter indicates particle should be filtered
 	inline bool Thruster::filter(const ParticleProxy& pp, double t) {
-		for (FilterFunction f : filters) {
+		for (auto& f : filters) {
 			if (f(pp, t)) { return true; }
 		}
 		return false;
 	}
 
-	void Thruster::addForce(ForceFunction f) {
+	void Thruster::addForce(const ForceFunction& f) {
 		forces.push_back(f);
 	}
 
 	inline Force Thruster::getTotalForce(const ParticleProxy& pp, double t) {
 		Force f;
-		for (ForceFunction ff : forces) {
+		for (auto& ff : forces) {
 			f += ff(pp, t);
 		}
 		return f;

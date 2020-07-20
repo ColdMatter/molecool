@@ -20,8 +20,8 @@ namespace molecool {
 		// odeint system function, signature is specific to 2nd order system for velocity-verlet stepper
 		void operator() (state_type const& x, state_type const& v, state_type& a, double t);
 
-        void addFilter(FilterFunction f);
-        void addForce(ForceFunction f);
+        void addFilter(const FilterFunction& ff);
+        void addForce(const ForceFunction& ff);
 
     private:
 

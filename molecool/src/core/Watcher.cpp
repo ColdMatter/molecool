@@ -9,7 +9,7 @@ namespace molecool {
 
     void Watcher::deployObservers(double t) {
         MC_PROFILE_FUNCTION();
-        for (ObserverPtr obs : observers) {
+        for (const auto& obs : observers) {
             (*obs)(ensemble, t);
         }
     }
