@@ -16,3 +16,8 @@ ensemble = {
     zDistribution  = {pdf = "delta", center = 0.0},
     vzDistribution = {pdf = "delta", center = 0.0}
 }
+
+function addStuff(a, b)
+    print("[LUA]: adding " .. a .. " and " .. b .. "\n")
+    return a + b
+end

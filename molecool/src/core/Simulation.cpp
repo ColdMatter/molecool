@@ -98,11 +98,31 @@ namespace molecool {
 
         // getting table keys:
         std::vector<std::string> keys = script.getTableKeys("ensemble");
-        std::cout << "Keys of [simulation] table:";
+        std::cout << "Keys of [ensemble] table: ";
         for (std::vector<std::string>::iterator it = keys.begin(); it != keys.end(); it++) {
             std::cout << *it << ",";
         }
         std::cout << std::endl;
+
+        // evaluating a function defined in the Lua script
+        MC_CORE_INFO("calling Lua function");
+        lua_State* L = luaL_newstate();
+        luaL_openlibs(L);
+        luaL_dofile(L, "src/simulation.lua");
+        lua_pcall(L, 0, 0, 0);
+        lua_getglobal(L, "addStuff");
+        if (lua_isfunction(L, -1)) {
+            lua_pushnumber(L, 10.1);
+            lua_pushnumber(L, 3.2);
+            lua_pcall(L, 2, 1, 0);      // call function with 2 inputs and 1 output
+            float r = (float)lua_tonumber(L, -1);
+            MC_CORE_INFO("got back {0}", r);
+        }
+        else {
+            MC_CORE_INFO("function call failed");
+        }
+
+        lua_close(L);
         
     }
 
