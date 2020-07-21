@@ -7,6 +7,7 @@ namespace molecool {
     : thruster(ensemble), watcher(ensemble)
     {
         MC_PROFILE_FUNCTION();
+        parseScript();
     }
 
     Simulation::~Simulation() {
@@ -15,15 +16,9 @@ namespace molecool {
     
     void Simulation::run() {
         MC_PROFILE_FUNCTION();
-        
-        parseScript();
-
         ensemble.save("initials");
         propagate();
         ensemble.save("finals");
-
-        //std::cout << "press any key to end" << std::endl;
-        //std::cin.get();
     }
 
     void Simulation::propagate() {

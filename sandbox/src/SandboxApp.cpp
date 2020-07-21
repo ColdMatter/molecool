@@ -104,6 +104,9 @@ namespace molecool {
 		ScriptedSandbox() {
 
 			// ensemble data comes from script!
+			// at this point, the base class constructor has already been called
+			// you can add additional watchers/particles/forces etc. as you see fit
+			// effectively mixing and matching class-based behavior with scripting behavior
 
 			//////////////////////////////////////////////
 			// register force(s)
