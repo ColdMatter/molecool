@@ -7,3 +7,6 @@
 [submodule "lua/src"]
 	path = vendor/lua/src
 	url = https://github.com/lua/lua.git
+[submodule "vendor/sol"]
+	path = vendor/sol
+	url = https://github.com/ThePhD/sol2.git
