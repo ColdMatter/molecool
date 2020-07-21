@@ -3,14 +3,6 @@ This is a prototype simulation that uses the 'molecool' simulation engine.
 */
 
 #include "molecool.h"
-/*
-extern "C" {
-#include "lua.h"
-#include "lauxlib.h"
-#include "lualib.h"
-}
-*/
-
 
 
 namespace molecool {
@@ -105,11 +97,51 @@ namespace molecool {
 
 	};
 
+	class ScriptedSandbox : public Simulation {
+
+	public:
+
+		ScriptedSandbox() {
+
+			// ensemble data comes from script!
+
+			//////////////////////////////////////////////
+			// register force(s)
+			Gravity gravity;
+			addForce(gravity);																					// use a functor
+			//addForce(std::bind(&Gravity::memFunc, &gravity, std::placeholders::_1, std::placeholders::_2));	// use a member function
+			//addForce(&Gravity::staFunc);																		// use a static member function
+			addForce(damping);																					// use a free function
+			auto sho3d = [](const ParticleProxy& pp, double t) -> Force {										// use a lambda
+				const double k = 1.0;		// spring constant
+				return -k * pp.getPos();
+			};
+			addForce(sho3d);
+			//////////////////////////////////////////////
+
+
+			//////////////////////////////////////////////
+			// register particle filter(s) to indicate when a particle should stop propagating
+			auto filter = [](const ParticleProxy& pp, double t) -> bool {
+				return (pp.getIndex() == 0) && (t > 0.5);
+			};
+			addFilter(filter);
+			//////////////////////////////////////////////
+
+
+			//////////////////////////////////////////////
+			// register observer(s)
+			addObserver(std::make_shared<Trajectorizer>(ensemble, 2));
+			//////////////////////////////////////////////
+		}
+
+		~ScriptedSandbox() {}
+	};
 
 	// function called by the engine in the entry point
 	// user/client simulation code executed before simulation runs goes here
 	Simulation* createSimulation() {
-		return new Sandbox();
+		return new ScriptedSandbox();
 	}
 
 }

@@ -16,7 +16,7 @@ namespace molecool {
     void Simulation::run() {
         MC_PROFILE_FUNCTION();
         
-        readLuaScript();
+        parseScript();
 
         ensemble.save("initials");
         propagate();
@@ -56,7 +56,7 @@ namespace molecool {
 
     void Simulation::addParticles(int n, ParticleId p, PosDist xDis, VelDist vxDis, PosDist yDis, VelDist vyDis, PosDist zDis, VelDist vzDis) {
         MC_PROFILE_FUNCTION();;
-        std::array< std::pair< PosDist, VelDist>, MC_DIMS > dists;
+        std::array< std::pair<PosDist, VelDist>, MC_DIMS > dists;
         dists[0] = std::make_pair(xDis, vxDis);
         dists[1] = std::make_pair(yDis, vyDis);
         dists[2] = std::make_pair(zDis, vzDis);
@@ -75,16 +75,24 @@ namespace molecool {
         watcher.addObserver(obs);
     }
     
-    void Simulation::readLuaScript() {
-        LuaScript script("src/simulation.lua");                             // load file onto stack
-        float startTime = script.get<float>("simulation.begin");            // extract values
-        float endTime = script.get<float>("simulation.finish");
-        std::string filename = script.get<std::string>("simulation.filename");
-        int num = script.get<int>("number");
-        std::cout << "times = " << startTime << ", " << endTime << std::endl;
-        std::cout << "filename:" << filename << std::endl;
-        std::cout << "number:" << num << std::endl;
+    void Simulation::parseScript() {
+        LuaScript script("src/simulation.lua");
 
+        // get simulation time settings
+        tStart = script.get<float>("startTime");            
+        tEnd = script.get<float>("endTime");
+        dt = script.get<float>("timestep");
+
+        // get ensemble parameters
+        int n = script.get<int>("ensemble.population");
+        Dist xDist  = extractDist(script, "ensemble.xDistribution");
+        Dist vxDist = extractDist(script, "ensemble.vxDistribution");
+        Dist yDist  = extractDist(script, "ensemble.yDistribution");
+        Dist vyDist = extractDist(script, "ensemble.vyDistribution");
+        Dist zDist  = extractDist(script, "ensemble.zDistribution");
+        Dist vzDist = extractDist(script, "ensemble.vzDistribution");
+        addParticles(n, ParticleId::CaF, xDist, vxDist, yDist, vyDist, zDist, vzDist);
+        
         // getting arrays
         std::vector<int> v = script.getIntVector("array");
         std::cout << "Contents of array:";
@@ -94,15 +102,64 @@ namespace molecool {
         std::cout << std::endl;
 
         // getting table keys:
-        std::vector<std::string> keys = script.getTableKeys("simulation");
+        std::vector<std::string> keys = script.getTableKeys("ensemble");
         std::cout << "Keys of [simulation] table:";
-        for (std::vector<std::string>::iterator it = keys.begin();
-            it != keys.end();
-            it++) {
+        for (std::vector<std::string>::iterator it = keys.begin(); it != keys.end(); it++) {
             std::cout << *it << ",";
         }
         std::cout << std::endl;
         
+    }
+
+    Dist Simulation::extractDist(LuaScript& script, std::string name) {
+        PDF pdf = nameToPDF( script.get<std::string>(name + ".pdf") );
+        double p1 = 0.0, p2 = 0.0;  // shape parameters
+        switch (pdf) {
+        case PDF::delta:
+            p1 = script.get<float>(name + ".center");
+            break;
+        case PDF::flat:
+            p1 = script.get<float>(name + ".min");
+            p2 = script.get<float>(name + ".max");
+            break;
+        case PDF::gaussian:
+            p1 = script.get<float>(name + ".center");
+            p2 = script.get<float>(name + ".width");
+            break;
+        default:
+            p1 = script.get<float>(name + ".displacement");
+            p2 = script.get<float>(name + ".scalefactor");
+            break;
+        }
+        return Dist(pdf, p1, p2);
+    }
+
+    PDF Simulation::nameToPDF(std::string name) {
+        if (name == "delta") {
+            return PDF::delta;
+        }
+        else if (name == "flat") {
+            return PDF::flat;
+        }
+        else if (name == "gaussian") {
+            return PDF::gaussian;
+        }
+        else if (name == "exponential") {
+            return PDF::exponential;
+        }
+        else if (name == "laplace") {
+            return PDF::laplace;
+        }
+        else if (name == "cauchy") {
+            return PDF::cauchy;
+        }
+        else if (name == "rayleigh") {
+            return PDF::rayleigh;
+        }
+        else {
+            MC_CORE_WARN("distribution type {0} not recognized", name);
+            return PDF::delta;
+        }
     }
     
 }

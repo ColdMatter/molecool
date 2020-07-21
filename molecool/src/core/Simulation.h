@@ -38,7 +38,10 @@ namespace molecool {
 
     private:
         void propagate();
-        void readLuaScript();
+        void parseScript();
+
+        Dist extractDist(LuaScript& script, std::string name);
+        PDF nameToPDF(std::string name);
 
     };
 
