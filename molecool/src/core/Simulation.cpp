@@ -1,6 +1,9 @@
 #include "mcpch.h"
 #include "Simulation.h"
 
+#define SOL_ALL_SAFETIES_ON 1
+#include "sol/sol.hpp"
+
 namespace molecool {
     
     Simulation::Simulation() 
@@ -71,13 +74,13 @@ namespace molecool {
     }
     
     void Simulation::parseScript() {
+        /*
+        // THE SCRIPT CLASS APPROACH
         LuaScript script("src/simulation.lua");
-
         // get simulation time settings
         tStart = script.get<float>("startTime");            
         tEnd = script.get<float>("endTime");
         dt = script.get<float>("timestep");
-
         // get ensemble parameters
         int n = script.get<int>("ensemble.population");
         Dist xDist  = extractDist(script, "ensemble.xDistribution");
@@ -103,7 +106,11 @@ namespace molecool {
             std::cout << *it << ",";
         }
         std::cout << std::endl;
+        //////////////////////////////////////////////////
+        */
 
+        /*
+        // THE RAW LUA STACK APPROACH
         // evaluating a function defined in the Lua script
         MC_CORE_INFO("calling Lua function");
         lua_State* L = luaL_newstate();
@@ -121,9 +128,81 @@ namespace molecool {
         else {
             MC_CORE_INFO("function call failed");
         }
-
         lua_close(L);
+        //////////////////////////////////////////////////
+        */
+
+        // THE SOL LIBRARY APPROACH
+        sol::state lua;
+        lua.open_libraries(sol::lib::base);
+
+        lua.script_file("src/simulation.lua");
+
+        tStart  = lua["startTime"]; // these work :)
+        tEnd    = lua["endTime"];
+        dt      = lua["timestep"];
+
+        // get ensemble parameters stored in lua "ensemble" table
+        sol::table ensTbl = lua["ensemble"];
+        int n = ensTbl["population"];                  
+        Dist xDist  = extractDist(ensTbl["xDistribution"]);         // this is rather clumsy, can we use sol userstate and have lua do object construction from table/metatable
+        Dist vxDist = extractDist(ensTbl["vxDistribution"]);
+        Dist yDist  = extractDist(ensTbl["yDistribution"]);
+        Dist vyDist = extractDist(ensTbl["vyDistribution"]);
+        Dist zDist  = extractDist(ensTbl["zDistribution"]);
+        Dist vzDist = extractDist(ensTbl["vzDistribution"]);
+        addParticles(n, ParticleId::CaF, xDist, vxDist, yDist, vyDist, zDist, vzDist);
+
+        // try accessing a simple function in the script
+        sol::function adder = lua["addStuff"];
+        double result = adder(1.0, 2.3);
+        std::cout << result << std::endl;
+
+        sol::function applyFilters = lua["apply_filters"];
+        bool ret = applyFilters();
+        std::cout << "filters returned " << ret << std::endl;
+
+        // register new usertype with the lua state
+        lua.new_usertype<Ensemble>("Ensemble",
+            "new", sol::no_constructor,
+            "get_population", &Ensemble::getPopulation
+        );
+        sol::function my_func = lua["my_function"];
+        std::function<void(const Ensemble&)> my_func2 = lua["my_function"];     // lua function as std::function for callbacks?
+        //Ensemble* ensPtr = &ensemble;         // works with a pointer to the usertype
+        Ensemble& ens = ensemble;               // or a reference
+        if (my_func) {
+            std::cout << "yup!" << std::endl;
+            my_func2(ens);
+        }
+        else {
+            std::cout << "nope!" << std::endl;
+        }
         
+    }
+
+    // expect 
+    Dist Simulation::extractDist(sol::table table) {
+        PDF pdf = nameToPDF(table["pdf"]);
+        double p1 = 0.0, p2 = 0.0;  // shape parameters
+        switch (pdf) {
+        case PDF::delta:
+            p1 = table["center"];
+            break;
+        case PDF::flat:
+            p1 = table["min"];
+            p2 = table["max"];
+            break;
+        case PDF::gaussian:
+            p1 = table["center"];
+            p2 = table["width"];
+            break;
+        default:
+            p1 = table["displacement"];
+            p2 = table["scalefactor"];
+            break;
+        }
+        return Dist(pdf, p1, p2);
     }
 
     Dist Simulation::extractDist(LuaScript& script, std::string name) {
@@ -149,6 +228,7 @@ namespace molecool {
         return Dist(pdf, p1, p2);
     }
 
+    // could this be cleaner using magic enum?
     PDF Simulation::nameToPDF(std::string name) {
         if (name == "delta") {
             return PDF::delta;

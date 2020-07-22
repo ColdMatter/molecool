@@ -6,6 +6,7 @@
 #include "Watcher.h"
 
 #include "LuaScript.h"
+#include "sol/sol.hpp"
 
 extern "C" {
 # include "lua.h"
@@ -41,6 +42,7 @@ namespace molecool {
         void parseScript();
 
         Dist extractDist(LuaScript& script, std::string name);
+        Dist extractDist(sol::table table);
         PDF nameToPDF(std::string name);
 
     };

@@ -95,7 +95,8 @@ project "molecool"
         boostDir,
         mklIncDir,
         "vendor/lua/src",
-        "%{prj.name}/vendor/nlohmann_json/include"
+        "%{prj.name}/vendor/nlohmann_json/include",
+        "vendor/sol/include"
     }
 
     libdirs {
@@ -188,7 +189,8 @@ project "sandbox"
         boostDir,
         mklIncDir,
         "vendor/lua/src",
-        "molecool/vendor/nlohmann_json/include"
+        "molecool/vendor/nlohmann_json/include",
+        "vendor/sol/include"
     }
 
     libdirs {
