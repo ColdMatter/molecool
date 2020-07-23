@@ -3,9 +3,13 @@
 
 namespace molecool {
 
-	Thruster::Thruster(Ensemble& ens)
-		: ensemble(ens)
+	Thruster::Thruster(sol::state& luaState, Ensemble& ens)
+		: lua(luaState), ensemble(ens)
 	{}
+
+	Thruster::~Thruster() {
+		MC_CORE_TRACE("Destroying thruster");
+	}
 
 	// this system function (odeint functor) has lots of side effects, this is probably unavoidable
 	// the design of odeint guarantees that this system function is called by the main thread
@@ -30,7 +34,7 @@ namespace molecool {
 				if (acc.x == 0 && acc.y == 0.0 && acc.z == 0.0) 
 				{	// acceleration has properly damped to zero, OK to never change it again 
 					ensemble.deactivateParticle(i); 
-					//MC_CORE_TRACE("particle lost @ ({0}, {1}, {2})", p.getX(), p.getY(), p.getZ());
+					MC_CORE_TRACE("particle lost @ ({0}, {1}, {2})", p.getX(), p.getY(), p.getZ());
 				}
 				else 
 				{	// particle matches filter condition but acceleration hasn't reached zero yet due to odeint internal state 
@@ -46,18 +50,22 @@ namespace molecool {
 	} // end function
 
 	void Thruster::addFilter(const FilterFunction& fil) {
+		MC_CORE_TRACE("Adding filter");
 		filters.push_back(fil);
 	}
 
-	// apply all registerd filter functions to particle, returning true if any filter indicates particle should be filtered
 	inline bool Thruster::filter(const ParticleProxy& pp, double t) {
 		for (auto& f : filters) {
+			if (f(pp, t)) { return true; }
+		}
+		for (auto& f : luaFilters) {
 			if (f(pp, t)) { return true; }
 		}
 		return false;
 	}
 
 	void Thruster::addForce(const ForceFunction& f) {
+		MC_CORE_TRACE("Adding force");
 		forces.push_back(f);
 	}
 

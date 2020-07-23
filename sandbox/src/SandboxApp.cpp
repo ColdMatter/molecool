@@ -122,16 +122,6 @@ namespace molecool {
 			addForce(sho3d);
 			//////////////////////////////////////////////
 
-
-			//////////////////////////////////////////////
-			// register particle filter(s) to indicate when a particle should stop propagating
-			auto filter = [](const ParticleProxy& pp, double t) -> bool {
-				return (pp.getIndex() == 0) && (t > 0.5);
-			};
-			addFilter(filter);
-			//////////////////////////////////////////////
-
-
 			//////////////////////////////////////////////
 			// register observer(s)
 			addObserver(std::make_shared<Trajectorizer>(ensemble, 2));

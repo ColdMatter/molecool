@@ -28,6 +28,7 @@ namespace molecool {
         void addForce(ForceFunction ff);
         void addObserver(ObserverPtr obs);
 
+        sol::state lua;
         Ensemble ensemble;
         Thruster thruster;
         Watcher watcher;
@@ -38,6 +39,7 @@ namespace molecool {
         double dt = 0.001;
 
     private:
+
         void propagate();
         void parseScript();
 

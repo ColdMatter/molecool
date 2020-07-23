@@ -2,7 +2,7 @@
 
 #include "mcpch.h"
 #include "Ensemble.h"
-#include "Vector.h"
+#include "sol/sol.hpp"
 
 namespace molecool {
 
@@ -15,7 +15,8 @@ namespace molecool {
     {
 
     public:
-        Thruster(Ensemble& ens);
+        Thruster(sol::state& lua, Ensemble& ens);
+        ~Thruster();
 
 		// odeint system function, signature is specific to 2nd order system for velocity-verlet stepper
 		void operator() (state_type const& x, state_type const& v, state_type& a, double t);
@@ -25,9 +26,10 @@ namespace molecool {
 
     private:
 
+        sol::state& lua;
 		Ensemble& ensemble;
 
-        // a collection of filter functions that return true if a particle should be stopped
+        // a collection of native filter functions that return true if a particle should be stopped
         std::vector<FilterFunction> filters;
 
         // a collection of force functions that apply forces based on position, velocity, etc.

@@ -7,7 +7,7 @@
 namespace molecool {
     
     Simulation::Simulation() 
-    : thruster(ensemble), watcher(ensemble)
+    : thruster(lua, ensemble), watcher(ensemble)
     {
         MC_PROFILE_FUNCTION();
         parseScript();
@@ -38,6 +38,9 @@ namespace molecool {
         using stepper_type = velocity_verlet< state_type, state_type, double, state_type, double, double, openmp_range_algebra >;
         stepper_type stepper;
         for (double t = tStart; t <= tEnd; t += dt) {
+            // check for early exit
+            if (ensemble.getActivePopulation() == 0) { break; }
+
             // calculate the relevant quantum state populations (if appropriate)
 
             // advance classical states one timestep
@@ -46,8 +49,6 @@ namespace molecool {
             // deploy watcher object, tracking trajectories, population statistics, etc.
             watcher.deployObservers(t);
 
-            // check for early exit
-            if (ensemble.getActivePopulation() == 0) { break; }
         }
         MC_CORE_TRACE("propagation complete, {0} particles still active", ensemble.getActivePopulation());
     }
@@ -74,78 +75,22 @@ namespace molecool {
     }
     
     void Simulation::parseScript() {
-        /*
-        // THE SCRIPT CLASS APPROACH
-        LuaScript script("src/simulation.lua");
-        // get simulation time settings
-        tStart = script.get<float>("startTime");            
-        tEnd = script.get<float>("endTime");
-        dt = script.get<float>("timestep");
-        // get ensemble parameters
-        int n = script.get<int>("ensemble.population");
-        Dist xDist  = extractDist(script, "ensemble.xDistribution");
-        Dist vxDist = extractDist(script, "ensemble.vxDistribution");
-        Dist yDist  = extractDist(script, "ensemble.yDistribution");
-        Dist vyDist = extractDist(script, "ensemble.vyDistribution");
-        Dist zDist  = extractDist(script, "ensemble.zDistribution");
-        Dist vzDist = extractDist(script, "ensemble.vzDistribution");
-        addParticles(n, ParticleId::CaF, xDist, vxDist, yDist, vyDist, zDist, vzDist);
-        
-        // getting arrays
-        std::vector<int> v = script.getIntVector("array");
-        std::cout << "Contents of array:";
-        for (std::vector<int>::iterator it = v.begin(); it != v.end(); it++) {
-            std::cout << *it << ",";
-        }
-        std::cout << std::endl;
-
-        // getting table keys:
-        std::vector<std::string> keys = script.getTableKeys("ensemble");
-        std::cout << "Keys of [ensemble] table: ";
-        for (std::vector<std::string>::iterator it = keys.begin(); it != keys.end(); it++) {
-            std::cout << *it << ",";
-        }
-        std::cout << std::endl;
-        //////////////////////////////////////////////////
-        */
-
-        /*
-        // THE RAW LUA STACK APPROACH
-        // evaluating a function defined in the Lua script
-        MC_CORE_INFO("calling Lua function");
-        lua_State* L = luaL_newstate();
-        luaL_openlibs(L);
-        luaL_dofile(L, "src/simulation.lua");
-        lua_pcall(L, 0, 0, 0);
-        lua_getglobal(L, "addStuff");
-        if (lua_isfunction(L, -1)) {
-            lua_pushnumber(L, 10.1);
-            lua_pushnumber(L, 3.2);
-            lua_pcall(L, 2, 1, 0);      // call function with 2 inputs and 1 output
-            float r = (float)lua_tonumber(L, -1);
-            MC_CORE_INFO("got back {0}", r);
-        }
-        else {
-            MC_CORE_INFO("function call failed");
-        }
-        lua_close(L);
-        //////////////////////////////////////////////////
-        */
-
-        // THE SOL LIBRARY APPROACH
-        sol::state lua;
         lua.open_libraries(sol::lib::base);
+        auto result = lua.safe_script_file("src/simulation.lua", sol::script_pass_on_error);  // load and execute script from file
+        if (!result.valid()) {
+            sol::error err = result;
+            MC_CORE_ERROR("lua script error: {0}, exiting.", err.what());
+            exit(1);
+        }
 
-        lua.script_file("src/simulation.lua");
-
-        tStart  = lua["startTime"]; // these work :)
-        tEnd    = lua["endTime"];
+        tStart  = lua.get<float>("startTime");  // explicit get of a variable
+        tEnd    = lua["endTime"];               // implicit conversion to end type
         dt      = lua["timestep"];
 
         // get ensemble parameters stored in lua "ensemble" table
         sol::table ensTbl = lua["ensemble"];
         int n = ensTbl["population"];                  
-        Dist xDist  = extractDist(ensTbl["xDistribution"]);         // this is rather clumsy, can we use sol userstate and have lua do object construction from table/metatable
+        Dist xDist  = extractDist(ensTbl["xDistribution"]);
         Dist vxDist = extractDist(ensTbl["vxDistribution"]);
         Dist yDist  = extractDist(ensTbl["yDistribution"]);
         Dist vyDist = extractDist(ensTbl["vyDistribution"]);
@@ -153,14 +98,27 @@ namespace molecool {
         Dist vzDist = extractDist(ensTbl["vzDistribution"]);
         addParticles(n, ParticleId::CaF, xDist, vxDist, yDist, vyDist, zDist, vzDist);
 
-        // try accessing a simple function in the script
-        sol::function adder = lua["addStuff"];
-        double result = adder(1.0, 2.3);
-        std::cout << result << std::endl;
+        ///////// filtering
+        // register new usertype with the lua state for applying filters to "particles"
+        lua.new_usertype<ParticleProxy>("ParticleProxy",
+            "new", sol::no_constructor,
+            "get_index", &ParticleProxy::getIndex,
+            "get_x", &ParticleProxy::getX,
+            "get_y", &ParticleProxy::getY,
+            "get_z", &ParticleProxy::getZ,
+            "get_vx", &ParticleProxy::getVx,
+            "get_vy", &ParticleProxy::getVy,
+            "get_vz", &ParticleProxy::getVz
+            // probably need to first add usertype for "Vector" if wanting to use getPos() or getVel()
+            );
 
-        sol::function applyFilters = lua["apply_filters"];
-        bool ret = applyFilters();
-        std::cout << "filters returned " << ret << std::endl;
+        // add any filters defined in the lua script
+        // probably worth checking that the filters list exists and has length > 0 before adding...
+        sol::table luaFilters = lua["filters"].get_or_create<sol::table>();
+        sol::function luaFilter = lua["filter"];
+        if (luaFilter.valid()) {
+            thruster.addFilter(luaFilter);
+        }
 
         // register new usertype with the lua state
         lua.new_usertype<Ensemble>("Ensemble",
