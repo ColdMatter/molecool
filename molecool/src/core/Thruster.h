@@ -2,7 +2,6 @@
 
 #include "mcpch.h"
 #include "Ensemble.h"
-#include "sol/sol.hpp"
 
 namespace molecool {
 
@@ -15,7 +14,7 @@ namespace molecool {
     {
 
     public:
-        Thruster(sol::state& lua, Ensemble& ens);
+        Thruster(Ensemble& ens);
         ~Thruster();
 
 		// odeint system function, signature is specific to 2nd order system for velocity-verlet stepper
@@ -26,7 +25,6 @@ namespace molecool {
 
     private:
 
-        sol::state& lua;
 		Ensemble& ensemble;
 
         // a collection of native filter functions that return true if a particle should be stopped

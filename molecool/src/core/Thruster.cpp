@@ -3,8 +3,8 @@
 
 namespace molecool {
 
-	Thruster::Thruster(sol::state& luaState, Ensemble& ens)
-		: lua(luaState), ensemble(ens)
+	Thruster::Thruster(Ensemble& ens)
+		: ensemble(ens)
 	{}
 
 	Thruster::~Thruster() {
@@ -56,9 +56,6 @@ namespace molecool {
 
 	inline bool Thruster::filter(const ParticleProxy& pp, double t) {
 		for (auto& f : filters) {
-			if (f(pp, t)) { return true; }
-		}
-		for (auto& f : luaFilters) {
 			if (f(pp, t)) { return true; }
 		}
 		return false;

@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
 
 	MC_CORE_TRACE("Hardware check: {0} threads available", omp_get_max_threads());
 	omp_set_dynamic(0);
-	omp_set_num_threads(1);	// uncomment or adjust to compare timing with different thread counts
+	//omp_set_num_threads(1);	// uncomment or adjust to compare timing with different thread counts
 
 	// engine initialization code goes here
 

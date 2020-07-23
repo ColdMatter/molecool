@@ -70,20 +70,10 @@ namespace molecool {
 			addFilter(filter);
 			//////////////////////////////////////////////
 			
-
+		
 			//////////////////////////////////////////////
 			// register observer(s)
-			/*
-			auto trajTracker = [](const Ensemble & ens, double t) -> void {
-				int n = 0;		// particle number 0..nParticles-1
-				ParticleProxy p = ParticleProxy(ens, n);
-				std::cout << "t = " << t << ", particle " << p.getIndex() << " at " << p.getPos() << std::endl;
-			};
-			addObserver(std::make_shared<trajTracker>);
-			*/
-			 
 			addObserver(std::make_shared<Trajectorizer>(ensemble, 2));
-			
 			//////////////////////////////////////////////
 			
 
@@ -122,10 +112,22 @@ namespace molecool {
 			addForce(sho3d);
 			//////////////////////////////////////////////
 
+
+			//////////////////////////////////////////////
+			// register particle filter(s) to indicate when a particle should stop propagating
+			auto filter = [](const ParticleProxy& pp, double t) -> bool {
+				return (pp.getIndex() == 0) && (t > 0.5);
+			};
+			addFilter(filter);
+			//////////////////////////////////////////////
+
+
 			//////////////////////////////////////////////
 			// register observer(s)
 			addObserver(std::make_shared<Trajectorizer>(ensemble, 2));
 			//////////////////////////////////////////////
+
+
 		}
 
 		~ScriptedSandbox() {}

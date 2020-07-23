@@ -7,10 +7,11 @@
 namespace molecool {
     
     Simulation::Simulation() 
-    : thruster(lua, ensemble), watcher(ensemble)
+    : thruster(ensemble), watcher(ensemble)
     {
         MC_PROFILE_FUNCTION();
         parseScript();
+
     }
 
     Simulation::~Simulation() {
@@ -98,44 +99,12 @@ namespace molecool {
         Dist vzDist = extractDist(ensTbl["vzDistribution"]);
         addParticles(n, ParticleId::CaF, xDist, vxDist, yDist, vyDist, zDist, vzDist);
 
-        ///////// filtering
-        // register new usertype with the lua state for applying filters to "particles"
-        lua.new_usertype<ParticleProxy>("ParticleProxy",
-            "new", sol::no_constructor,
-            "get_index", &ParticleProxy::getIndex,
-            "get_x", &ParticleProxy::getX,
-            "get_y", &ParticleProxy::getY,
-            "get_z", &ParticleProxy::getZ,
-            "get_vx", &ParticleProxy::getVx,
-            "get_vy", &ParticleProxy::getVy,
-            "get_vz", &ParticleProxy::getVz
-            // probably need to first add usertype for "Vector" if wanting to use getPos() or getVel()
-            );
+        // have lua script add any filters, need to expose some kind of host addFilter() function to script
+        // probably need to define everything in string format and parse it to a host-level expression
 
-        // add any filters defined in the lua script
-        // probably worth checking that the filters list exists and has length > 0 before adding...
-        sol::table luaFilters = lua["filters"].get_or_create<sol::table>();
-        sol::function luaFilter = lua["filter"];
-        if (luaFilter.valid()) {
-            thruster.addFilter(luaFilter);
-        }
+        // have lua script add any forces, need to expose some kind of host addForce() function to script
 
-        // register new usertype with the lua state
-        lua.new_usertype<Ensemble>("Ensemble",
-            "new", sol::no_constructor,
-            "get_population", &Ensemble::getPopulation
-        );
-        sol::function my_func = lua["my_function"];
-        std::function<void(const Ensemble&)> my_func2 = lua["my_function"];     // lua function as std::function for callbacks?
-        //Ensemble* ensPtr = &ensemble;         // works with a pointer to the usertype
-        Ensemble& ens = ensemble;               // or a reference
-        if (my_func) {
-            std::cout << "yup!" << std::endl;
-            my_func2(ens);
-        }
-        else {
-            std::cout << "nope!" << std::endl;
-        }
+        // have lua script add any observers, need to expose some kind of host addObserver() function to script
         
     }
 
@@ -163,30 +132,9 @@ namespace molecool {
         return Dist(pdf, p1, p2);
     }
 
-    Dist Simulation::extractDist(LuaScript& script, std::string name) {
-        PDF pdf = nameToPDF( script.get<std::string>(name + ".pdf") );
-        double p1 = 0.0, p2 = 0.0;  // shape parameters
-        switch (pdf) {
-        case PDF::delta:
-            p1 = script.get<float>(name + ".center");
-            break;
-        case PDF::flat:
-            p1 = script.get<float>(name + ".min");
-            p2 = script.get<float>(name + ".max");
-            break;
-        case PDF::gaussian:
-            p1 = script.get<float>(name + ".center");
-            p2 = script.get<float>(name + ".width");
-            break;
-        default:
-            p1 = script.get<float>(name + ".displacement");
-            p2 = script.get<float>(name + ".scalefactor");
-            break;
-        }
-        return Dist(pdf, p1, p2);
-    }
-
     // could this be cleaner using magic enum?
+    // this should probably be a static method of the PDF class
+    // better yet, make the PDF constructor be able to take in a name/string?
     PDF Simulation::nameToPDF(std::string name) {
         if (name == "delta") {
             return PDF::delta;
