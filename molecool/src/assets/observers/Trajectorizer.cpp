@@ -3,11 +3,14 @@
 
 namespace molecool {
 
+	int Trajectorizer::s_instance = 0;
+
 	Trajectorizer::Trajectorizer(const Ensemble& ens, int nParticles)
-		: m_nParticles(std::min(nParticles, ens.getPopulation()))
+		: m_nParticles(nParticles), m_instance(s_instance)
 	{
 		MC_CORE_TRACE("Creating trajectorizer observer, tracking first {0} trajectories", m_nParticles);
 		trajectories.resize(m_nParticles);
+		s_instance++;
 	}
 
 	void Trajectorizer::operator()(const Ensemble& ensemble, double t) {
@@ -21,9 +24,12 @@ namespace molecool {
 
 	Trajectorizer::~Trajectorizer() {
 		MC_PROFILE_FUNCTION();
-		MC_CORE_TRACE("destroying trajectory tracker");
+		MC_CORE_TRACE("Destroying trajectory tracker");
 		std::ofstream outputStream;
-		outputStream.open("output/trajectories.json");
+		std::string filename = "output/trajectories";
+		if (m_instance > 0) { filename += std::to_string(m_instance); }
+		filename += ".json";
+		outputStream.open(filename);
 		if (!outputStream.is_open())
 		{
 			if (Log::getCoreLogger()) // Edge case: constructor might be before Log::init()
@@ -41,7 +47,7 @@ namespace molecool {
 			for (size_t j = 0; j < t.size(); ++j) {
 				TrajectoryPoint p = t.at(j);
 				if (j > 0) { outputStream << ","; }
-				outputStream << "{\"time\":" << p.first << ",\"position\":[" << p.second << "]}";
+				outputStream << "{\"t\":" << p.first << ",\"x\":[" << p.second << "]}";
 			}
 			outputStream << "]}";
 		}

@@ -17,4 +17,6 @@ ensemble = {
     vzDistribution = {pdf = "delta", center = 0.6}
 }
 
+observers = { Trajectories(5), Trajectories(6) }
+
 

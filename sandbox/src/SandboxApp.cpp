@@ -124,7 +124,7 @@ namespace molecool {
 
 			//////////////////////////////////////////////
 			// register observer(s)
-			addObserver(std::make_shared<Trajectorizer>(ensemble, 2));
+			//addObserver(std::make_shared<Trajectorizer>(ensemble, 2));
 			//////////////////////////////////////////////
 
 

@@ -20,6 +20,8 @@ namespace molecool {
 	private:
 		int m_nParticles;
 		std::vector<Trajectory> trajectories;
+		int m_instance = 0;
+		static int s_instance;
 
     };
 }

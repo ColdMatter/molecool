@@ -15,6 +15,7 @@ namespace molecool {
     }
 
     void Watcher::addObserver(ObserverPtr obs) {
+        MC_CORE_TRACE("Adding observer");
         observers.push_back(obs);
     }
 

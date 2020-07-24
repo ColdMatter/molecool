@@ -1,5 +1,6 @@
 #include "mcpch.h"
 #include "Simulation.h"
+#include "assets/observers/Trajectorizer.h"
 
 #define SOL_ALL_SAFETIES_ON 1
 #include "sol/sol.hpp"
@@ -11,7 +12,6 @@ namespace molecool {
     {
         MC_PROFILE_FUNCTION();
         parseScript();
-
     }
 
     Simulation::~Simulation() {
@@ -76,39 +76,55 @@ namespace molecool {
     }
     
     void Simulation::parseScript() {
+        MC_CORE_INFO("Reading script");
         lua.open_libraries(sol::lib::base);
-        auto result = lua.safe_script_file("src/simulation.lua", sol::script_pass_on_error);  // load and execute script from file
-        if (!result.valid()) {
-            sol::error err = result;
-            MC_CORE_ERROR("lua script error: {0}, exiting.", err.what());
+        try {
+
+            // first register usertypes with the lua state so it knows how to create, pass, and/or destroy C++ objects
+
+            // here is a usertype that is created using a sol::factory, i.e. a generating function that returns a smart pointer
+            // in this case, Lua shouldn't actually do the allocation, C++ allocates the memory and has full ownership
+            lua.new_usertype<Trajectorizer>("Trajectories",
+                sol::call_constructor,
+                sol::factories([&](int i) { return std::make_shared<Trajectorizer>(ensemble, i); })
+                );
+
+            // then read and execute the script (from file)
+            auto result = lua.script_file("src/simulation.lua", sol::script_default_on_error);
+
+            // get simulation timing settings
+            tStart = lua.get<float>("startTime");   // explicit get of a variable
+            tEnd = lua["endTime"];                  // implicit conversion to end type
+            dt = lua["timestep"];
+
+            // get ensemble parameters stored in lua "ensemble" table
+            sol::table ensTbl = lua["ensemble"];
+            int n = ensTbl["population"];
+            Dist xDist = extractDist(ensTbl["xDistribution"]);
+            Dist vxDist = extractDist(ensTbl["vxDistribution"]);
+            Dist yDist = extractDist(ensTbl["yDistribution"]);
+            Dist vyDist = extractDist(ensTbl["vyDistribution"]);
+            Dist zDist = extractDist(ensTbl["zDistribution"]);
+            Dist vzDist = extractDist(ensTbl["vzDistribution"]);
+            addParticles(n, ParticleId::CaF, xDist, vxDist, yDist, vyDist, zDist, vzDist);
+
+            // (optional) existence of 'observers' array (table with implicit integer keys 1...) in script:
+            // fyi, if the observer object was free (not in a table/array), use this: addObserver(lua.get<ObserverPtr>("key"); or addObserver(lua["key"])
+            sol::optional<sol::table> observers = lua["observers"];
+            if (observers) {
+               for (int i = 1; i <= observers.value().size(); ++i) {
+                   addObserver(lua["observers"][i]);
+                }
+            }
+
+        }
+        catch (sol::error& err) {
+            MC_CORE_ERROR("script threw {0}", err.what());
             exit(1);
         }
 
-        tStart  = lua.get<float>("startTime");  // explicit get of a variable
-        tEnd    = lua["endTime"];               // implicit conversion to end type
-        dt      = lua["timestep"];
-
-        // get ensemble parameters stored in lua "ensemble" table
-        sol::table ensTbl = lua["ensemble"];
-        int n = ensTbl["population"];                  
-        Dist xDist  = extractDist(ensTbl["xDistribution"]);
-        Dist vxDist = extractDist(ensTbl["vxDistribution"]);
-        Dist yDist  = extractDist(ensTbl["yDistribution"]);
-        Dist vyDist = extractDist(ensTbl["vyDistribution"]);
-        Dist zDist  = extractDist(ensTbl["zDistribution"]);
-        Dist vzDist = extractDist(ensTbl["vzDistribution"]);
-        addParticles(n, ParticleId::CaF, xDist, vxDist, yDist, vyDist, zDist, vzDist);
-
-        // have lua script add any filters, need to expose some kind of host addFilter() function to script
-        // probably need to define everything in string format and parse it to a host-level expression
-
-        // have lua script add any forces, need to expose some kind of host addForce() function to script
-
-        // have lua script add any observers, need to expose some kind of host addObserver() function to script
-        
     }
 
-    // expect 
     Dist Simulation::extractDist(sol::table table) {
         PDF pdf = nameToPDF(table["pdf"]);
         double p1 = 0.0, p2 = 0.0;  // shape parameters
