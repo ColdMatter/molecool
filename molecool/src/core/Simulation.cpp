@@ -11,7 +11,7 @@ namespace molecool {
     : thruster(ensemble), watcher(ensemble)
     {
         MC_PROFILE_FUNCTION();
-        parseScript();
+        setupScript();
     }
 
     Simulation::~Simulation() {
@@ -20,6 +20,7 @@ namespace molecool {
     
     void Simulation::run() {
         MC_PROFILE_FUNCTION();
+        parseScript();
         ensemble.save("initials");
         propagate();
         ensemble.save("finals");
@@ -48,7 +49,7 @@ namespace molecool {
             stepper.do_step(std::ref(thruster), std::make_pair(std::ref(ensemble.getPos()), std::ref(ensemble.getVel())), t, dt);
             
             // deploy watcher object, tracking trajectories, population statistics, etc.
-            watcher.deployObservers(t);
+            watcher.deployObservers(ensemble, t);
 
         }
         MC_CORE_TRACE("propagation complete, {0} particles still active", ensemble.getActivePopulation());
@@ -74,22 +75,39 @@ namespace molecool {
     void Simulation::addObserver(ObserverPtr obs) {
         watcher.addObserver(obs);
     }
-    
-    void Simulation::parseScript() {
-        MC_CORE_INFO("Reading script");
+
+    void Simulation::setupScript() {
+        MC_CORE_TRACE("Setting up scripting");
         lua.open_libraries(sol::lib::base);
+
+        // register usertypes with the lua state so it knows how to create, pass, and/or destroy C++ objects
+
+        // here is a usertype that is created using a sol::factory, i.e. a generating function that returns a smart pointer
+        // in this case, Lua shouldn't actually do the allocation, C++ allocates the memory and has full ownership
+        
+        lua.new_usertype<Trajectorizer>("Trajectories",
+            sol::call_constructor,
+            sol::factories(// [&](int i) { return std::make_shared<Trajectorizer>(i); }
+                &Trajectorizer::make
+            )
+        );
+
+    }
+
+    /*
+    void Simulation::registerObserver(std::string callName, std::function<void()> factoryFunction) {
+        lua.new_usertype<Trajectorizer>(callName,
+            sol::call_constructor,
+            sol::factories(factoryFunction)
+        );
+    }
+    */
+    void Simulation::parseScript() {
+        MC_CORE_TRACE("Parsing script");
+        
         try {
 
-            // first register usertypes with the lua state so it knows how to create, pass, and/or destroy C++ objects
-
-            // here is a usertype that is created using a sol::factory, i.e. a generating function that returns a smart pointer
-            // in this case, Lua shouldn't actually do the allocation, C++ allocates the memory and has full ownership
-            lua.new_usertype<Trajectorizer>("Trajectories",
-                sol::call_constructor,
-                sol::factories([&](int i) { return std::make_shared<Trajectorizer>(ensemble, i); })
-                );
-
-            // then read and execute the script (from file)
+            // read and execute the script (from file)
             auto result = lua.script_file("src/simulation.lua", sol::script_default_on_error);
 
             // get simulation timing settings

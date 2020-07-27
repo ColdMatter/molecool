@@ -5,26 +5,26 @@ namespace molecool {
 
 	int Trajectorizer::s_instance = 0;
 
-	Trajectorizer::Trajectorizer(const Ensemble& ens, int nParticles)
+	Trajectorizer::Trajectorizer(int nParticles)
 		: m_nParticles(nParticles), m_instance(s_instance)
 	{
-		MC_CORE_TRACE("Creating trajectorizer observer, tracking first {0} trajectories", m_nParticles);
+		MC_CORE_TRACE("Creating trajectorizer, tracking first {0} trajectories", m_nParticles);
 		trajectories.resize(m_nParticles);
 		s_instance++;
 	}
 
-	void Trajectorizer::operator()(const Ensemble& ensemble, double t) {
+	void Trajectorizer::operator()(const Ensemble& ens, double t) {
 		MC_PROFILE_FUNCTION();
 		for (int i = 0; i < m_nParticles; ++i) {
-			if (ensemble.isParticleActive(i)) {
-				trajectories.at(i).push_back(std::make_pair(t, ensemble.getParticlePos(i)));
+			if (ens.isParticleActive(i)) {
+				trajectories.at(i).push_back(std::make_pair(t, ens.getParticlePos(i)));
 			}
 		}
 	}
 
 	Trajectorizer::~Trajectorizer() {
 		MC_PROFILE_FUNCTION();
-		MC_CORE_TRACE("Destroying trajectory tracker");
+		MC_CORE_TRACE("Destroying trajectorizer");
 		std::ofstream outputStream;
 		std::string filename = "output/trajectories";
 		if (m_instance > 0) { filename += std::to_string(m_instance); }

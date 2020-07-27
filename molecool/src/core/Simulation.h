@@ -36,10 +36,12 @@ namespace molecool {
         double tEnd = 1.0;
         double dt = 0.001;
 
+
     private:
 
         void propagate();
         void parseScript();
+        void setupScript();
 
         Dist extractDist(sol::table table);
         PDF nameToPDF(std::string name);
