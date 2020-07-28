@@ -81,27 +81,10 @@ namespace molecool {
         lua.open_libraries(sol::lib::base);
 
         // register usertypes with the lua state so it knows how to create, pass, and/or destroy C++ objects
-
-        // here is a usertype that is created using a sol::factory, i.e. a generating function that returns a smart pointer
-        // in this case, Lua shouldn't actually do the allocation, C++ allocates the memory and has full ownership
-        
-        lua.new_usertype<Trajectorizer>("Trajectories",
-            sol::call_constructor,
-            sol::factories(// [&](int i) { return std::make_shared<Trajectorizer>(i); }
-                &Trajectorizer::make
-            )
-        );
+        registerObserver<Trajectorizer>("Trajectories", Trajectorizer::make);
 
     }
 
-    /*
-    void Simulation::registerObserver(std::string callName, std::function<void()> factoryFunction) {
-        lua.new_usertype<Trajectorizer>(callName,
-            sol::call_constructor,
-            sol::factories(factoryFunction)
-        );
-    }
-    */
     void Simulation::parseScript() {
         MC_CORE_TRACE("Parsing script");
         
@@ -134,6 +117,8 @@ namespace molecool {
                    addObserver(lua["observers"][i]);
                 }
             }
+
+            // (optional) existence of 'forces' or 'potentials' array(s), with elements that are either strings or objects 
 
         }
         catch (sol::error& err) {

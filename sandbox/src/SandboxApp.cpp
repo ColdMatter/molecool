@@ -95,7 +95,8 @@ namespace molecool {
 
 			// ensemble data comes from script!
 			// at this point, the base class constructor has already been called
-			// you can add additional watchers/particles/forces etc. as you see fit
+			// you can add additional built-in watchers/particles/forces etc. as you see fit
+			// or register user classes in those categories that will be instantiated by the script
 			// effectively mixing and matching class-based behavior with scripting behavior
 
 			//////////////////////////////////////////////
@@ -120,13 +121,6 @@ namespace molecool {
 			};
 			addFilter(filter);
 			//////////////////////////////////////////////
-
-
-			//////////////////////////////////////////////
-			// register observer(s)
-			//addObserver(std::make_shared<Trajectorizer>(2));
-			//////////////////////////////////////////////
-
 
 		}
 
