@@ -79,12 +79,11 @@ namespace molecool {
 			actives[i] = true;
 		}
 		population += nParticles;
-		active += nParticles;
 	}
 
 	void Ensemble::deactivateParticle(int i) {
 		actives.at(i) = false;
-		active--;
+		population--;
 	}
 
 	void Ensemble::save(std::string filename) {
@@ -94,15 +93,15 @@ namespace molecool {
 		outputStream.open("output/" + filename + ".json");
 		if (!outputStream.is_open())
 		{
-			MC_CORE_ERROR("TrajectoryTracker could not open output file.");
+			MC_CORE_ERROR("ensemble could not open output file");
 			return;
 		}
 		outputStream << std::fixed << std::setprecision(6);
 		outputStream << "{\"" + filename + "\":[";
 		for (int i = 0; i < population; ++i) {
 			if (i > 0) { outputStream << ","; }
-			outputStream << "{\"position\":[" << getParticlePos(i) << "],";
-			outputStream << "\"velocity\":[" << getParticleVel(i) << "]}";
+			outputStream << "{\"x\":[" << getParticlePos(i) << "],";
+			outputStream << "\"v\":[" << getParticleVel(i) << "]}";
 		}
 		outputStream << "]}";
 		outputStream.flush();

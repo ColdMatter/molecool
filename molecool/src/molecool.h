@@ -16,7 +16,10 @@
 #include "debug/Profiler.h"
 //----------------------------------------------------------
 
+//--- Built-in observers -----------------------------------
 #include "assets/observers/Trajectorizer.h"
+#include "assets/observers/Staticizer.h"
+//----------------------------------------------------------
 
 //--- Random number generation -----------------------------
 #include "core/Random.h"

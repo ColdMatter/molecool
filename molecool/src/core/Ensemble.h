@@ -21,7 +21,6 @@ namespace molecool {
 		Ensemble();
 		void addParticles(int nParticles, ParticleId pId, std::array< std::pair< PosDist, VelDist>, MC_DIMS >& dists);
 		inline int getPopulation() const { return population; }
-		inline int getActivePopulation() const { return active; }
 		inline state_type& getPos() { return pos; }
 		inline state_type& getVel() { return vel; }
 		
@@ -39,8 +38,7 @@ namespace molecool {
 		state_type pos, vel;
 	
 	private:
-		int population = 0;					// number of particles in the ensemble
-		int active = 0;						// how many particles are active
+		int population = 0;					// number of active particles in the ensemble
 
 		std::vector<ParticleId> particleIds;	// list of particle ids
 		std::vector<bool> actives;				// vector of active flags for participating particles

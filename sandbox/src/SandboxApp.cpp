@@ -122,6 +122,9 @@ namespace molecool {
 			addFilter(filter);
 			//////////////////////////////////////////////
 
+			// observers specified in script!
+			//addObserver(std::make_shared<Staticizer>());
+
 		}
 
 		~ScriptedSandbox() {}

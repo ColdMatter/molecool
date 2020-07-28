@@ -1,6 +1,7 @@
 #include "mcpch.h"
 #include "Simulation.h"
 #include "assets/observers/Trajectorizer.h"
+#include "assets/observers/Staticizer.h"
 
 #define SOL_ALL_SAFETIES_ON 1
 #include "sol/sol.hpp"
@@ -28,7 +29,7 @@ namespace molecool {
 
     void Simulation::propagate() {
         MC_PROFILE_FUNCTION();
-        MC_CORE_TRACE("propagating {0} particles...", ensemble.getActivePopulation());
+        MC_CORE_TRACE("propagating {0} particles...", ensemble.getPopulation());
 
         using namespace boost::numeric::odeint;
         // using openmp algebra + standard operations + openmp system() function seems to reliably be the fastest
@@ -41,7 +42,7 @@ namespace molecool {
         stepper_type stepper;
         for (double t = tStart; t <= tEnd; t += dt) {
             // check for early exit
-            if (ensemble.getActivePopulation() == 0) { break; }
+            if (ensemble.getPopulation() == 0) { break; }
 
             // calculate the relevant quantum state populations (if appropriate)
 
@@ -52,7 +53,7 @@ namespace molecool {
             watcher.deployObservers(ensemble, t);
 
         }
-        MC_CORE_TRACE("propagation complete, {0} particles still active", ensemble.getActivePopulation());
+        MC_CORE_TRACE("propagation complete, {0} particles still active", ensemble.getPopulation());
     }
 
     void Simulation::addParticles(int n, ParticleId p, PosDist xDis, VelDist vxDis, PosDist yDis, VelDist vyDis, PosDist zDis, VelDist vzDis) {
@@ -82,6 +83,7 @@ namespace molecool {
 
         // register usertypes with the lua state so it knows how to create, pass, and/or destroy C++ objects
         registerObserver<Trajectorizer>("Trajectories", Trajectorizer::make);
+        registerObserver<Staticizer>("Statistics", Staticizer::make);
 
     }
 
@@ -110,7 +112,7 @@ namespace molecool {
             addParticles(n, ParticleId::CaF, xDist, vxDist, yDist, vyDist, zDist, vzDist);
 
             // (optional) existence of 'observers' array (table with implicit integer keys 1...) in script:
-            // fyi, if the observer object was free (not in a table/array), use this: addObserver(lua.get<ObserverPtr>("key"); or addObserver(lua["key"])
+            // fyi, if the observer object was free (not in a table/array), use this: addObserver(lua.get<ObserverPtr>("key"); or addObserver(lua["key"]);
             sol::optional<sol::table> observers = lua["observers"];
             if (observers) {
                for (int i = 1; i <= observers.value().size(); ++i) {

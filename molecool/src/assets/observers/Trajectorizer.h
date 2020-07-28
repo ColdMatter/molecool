@@ -2,7 +2,6 @@
 
 #include "core/Watcher.h"
 #include "core/Vector.h"
-#include "core/Ensemble.h"
 
 namespace molecool {
     
@@ -27,8 +26,6 @@ namespace molecool {
 		std::vector<Trajectory> trajectories;
 		int m_instance = 0;
 		static int s_instance;
-
-		//const Ensemble& ensemble;
 
     };
 }
